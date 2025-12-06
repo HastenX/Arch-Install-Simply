@@ -20,7 +20,7 @@ function run() {
     setDiskTypes
     mountParts
 
-    cat txt/pacstrapInput.txt | pacstrap -i /mnt base sudo nano
+    echo "1"; echo Y | pacstrap -i /mnt base sudo nano
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
@@ -112,7 +112,7 @@ function mountParts() {
 }
 
 function runChroot() {
-    echo $rootPassword; echo $rootPassword | passwd $rootPassword
+    echo $rootPassword; echo $rootPassword | passwd
     rootPassword=0
 
     useradd -m -g users -G wheel $user
