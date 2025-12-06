@@ -3,9 +3,9 @@ function run() {
     echo "Version 1.0 :3"
     formatDisk
     if [[ $(echo $disk|grep "nvm") != "" ]]; then
-        isNvm= 1
+        isNvm=1
     else 
-        isNvm= 0
+        isNvm=0
     fi
 
 
