@@ -164,10 +164,11 @@ function setDesktop() {
 function generateGrubFile() {
     cat txt/grub/grubTop.txt > txt/grub/compiledGrub.txt
     if [[ $encryption == 1 ]]; then
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$uuid:volgroup0 quiet" >> compiledGrub.txt
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$uuid:volgroup0 quiet" >> txt/grub/compiledGrub.txt
     else
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> compiledGrub.txt
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> txt/grub/compiledGrub.txt
     fi
+    cat txt/grub/grubBottom.txt >> txt/grub/compiledGrub.txt
 }
 
 run
