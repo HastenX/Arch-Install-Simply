@@ -24,7 +24,7 @@ function run() {
 
     mountParts
 
-    cat txt/pacstrapFile.txt | pacstrap -i /mnt base sudo nano
+    $(cat txt/pacstrapFile.txt ) | pacstrap -i /mnt base sudo nano
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
@@ -127,7 +127,7 @@ function mountParts() {
 }
 
 function runChroot() {
-    echo $rootPassword; echo $rootPassword | passwd
+    $(echo $rootPassword); $(echo $rootPassword) | passwd
     rootPassword=0
 
     useradd -m -g users -G wheel $user
