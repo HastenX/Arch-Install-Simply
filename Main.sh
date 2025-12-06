@@ -24,7 +24,10 @@ function run() {
 
     mountParts
 
-    $(cat txt/pacstrapFile.txt ) | pacstrap -i /mnt base sudo nano
+    {
+        echo ""
+        echo "Y"
+    } | pacstrap -i /mnt base sudo nano
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
@@ -33,14 +36,22 @@ function run() {
     read -p "Please enter $user password: " userPassword
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
 
-    runChroot | arch-chroot /mnt 
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot"
 
     umount -a
 
     if [[ $isNvm == 1 ]]; then
-        echo "d"; echo "4"; echo "w" | fdisk /dev/$disk"p3"
+        {
+            echo "d" 
+            echo "4" 
+            echo "w"
+        } | fdisk /dev/$disk"p3"
     else 
-        echo "d"; echo "4"; echo "w" | fdisk /dev/$disk"3"
+        {
+        echo "d" 
+        echo "4"
+        echo "w" 
+        }| fdisk /dev/$disk"3"
     fi 
     # reboot
 }
@@ -127,7 +138,10 @@ function mountParts() {
 }
 
 function runChroot() {
-    $(echo $rootPassword); $(echo $rootPassword) | passwd
+    {
+        echo $rootPassword; 
+        echo $rootPassword
+    } | passwd
     rootPassword=0
 
     useradd -m -g users -G wheel $user
@@ -139,17 +153,17 @@ function runChroot() {
 
     mountBoot
 
-    echo Y | pacman -S  base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    echo Y | pacman -Sy  base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     setDesktop $desktop
 
-    cat txt/mkinitcpioFile.txt > /etc/mkinitcpio.conf
+    $(cat txt/mkinitcpioFile.txt) > /etc/mkinitcpio.conf
     mkinitcpio -p linux 
 
-    cat txt/localeFile.txt > /etc/locale.gen
+    $(cat txt/localeFile.txt) > /etc/locale.gen
     locale-gen
 
     generateGrubFile
-    cat txt/grub/compiledGrub.txt > /etc/default/grub
+    $(cat txt/grub/compiledGrub.txt) > /etc/default/grub
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
     cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
@@ -176,29 +190,29 @@ function mountBoot() {
 
 function setDesktop() {
     if [[ $1 == "g" ]]; then
-        echo Y | pacman -S gnome-desktop gdm
+        echo Y | pacman -Sy gnome-desktop gdm
         return
     fi
     if [[ $1 == "p" ]]; then
-        echo Y | pacman -S plasma-desktop sddm
+        echo Y | pacman -Sy plasma-desktop sddm
         return
     fi
     if [[ $1 == "h" ]]; then
-        echo Y | pacman -S hyprland
+        echo Y | pacman -Sy hyprland
         return
     fi
     echo "None anwsers recieved, default to plasma:"
-    echo Y | pacman -S plasma-desktop sddm
+    echo Y | pacman -Sy plasma-desktop sddm
 }
 
 function generateGrubFile() {
     cat txt/grub/grubTop.txt > txt/grub/compiledGrub.txt
     if [[ $encryption == "Y" ]]; then
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$uuid:volgroup0 quiet" >> txt/grub/compiledGrub.txt
+        $(echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$uuid:volgroup0 quiet") >> txt/grub/compiledGrub.txt
     else
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> txt/grub/compiledGrub.txt
+        $(echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet") >> txt/grub/compiledGrub.txt
     fi
-    cat txt/grub/grubBottom.txt >> txt/grub/compiledGrub.txt
+    $(cat txt/grub/grubBottom.txt) >> txt/grub/compiledGrub.txt
 }
 
 run
