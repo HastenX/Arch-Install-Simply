@@ -18,6 +18,10 @@ function run() {
 
     partitionThird
     setDiskTypes
+
+    mkdir /mnt/home
+    mkdir /mnt/boot
+
     mountParts
 
     echo "1"; echo Y | pacstrap -i /mnt base sudo nano
@@ -103,8 +107,13 @@ function setDiskTypes() {
 }
 
 function mountParts() {
-    mkdir /mnt/home
-    mkdir /mnt/boot
+    if [ ! -d /mnt/boot ]; then
+        mkdir /mnt/boot
+    fi
+    if [ ! -d /mnt/home ]; then
+        mkdir /mnt/home
+    fi
+
     mount /dev/volgroup0/lv_root /mnt
     mount /dev/volgroup0/lv_home /mnt/home
     if [[ $isNvm == 1 ]]; then
