@@ -81,8 +81,10 @@ function partitionThird() {
             vgcreate volgroup0 /dev/$disk"3"
         fi
     fi
-    read -p "Enter root storage: " root
-    read -p "Enter home storage: " home
+    echo "p" | fdisk /dev/$disk
+    echo "**The program will not work if home + root > 3rd partition**"
+    read -p "Enter root storage(only num in GB): " root
+    read -p "Enter home storage(only num in GB): " home
     lvcreate -L $root"GB" volgroup0 -n lv_root
     lvcreate -L  $home"GB" volgroup0 -n lv_home
 }
