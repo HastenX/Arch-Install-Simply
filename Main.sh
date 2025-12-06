@@ -99,6 +99,7 @@ function setDiskTypes() {
     fi
     mkfs.ext4 /dev/volgroup0/lv_root
     mkfs.ext4 /dev/volgroup0/lv_home
+    read -p "wait:" wait
 }
 
 function mountParts() {
@@ -111,6 +112,7 @@ function mountParts() {
     else 
         mount /dev/$disk"2" /mnt/boot
     fi
+    read -p "wait:" wait
 }
 
 function runChroot() {
