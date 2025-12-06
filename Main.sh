@@ -110,10 +110,14 @@ function mountParts() {
     if [ ! -d /mnt/boot ]; then
         mkdir /mnt/boot
         read -p "wait:" wait
+        mountParts
+        return
     fi
     if [ ! -d /mnt/home ]; then
         mkdir /mnt/home
         read -p "wait:" wait
+        mountParts
+        return
     fi
 
     mount /dev/volgroup0/lv_root /mnt
