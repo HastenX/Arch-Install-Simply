@@ -24,7 +24,7 @@ function run() {
 
     mountParts
 
-    echo "1"; echo Y | pacstrap -i /mnt base sudo nano
+    cat txt/pacstrapFile.txt | pacstrap -i /mnt base sudo nano
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
@@ -109,9 +109,11 @@ function setDiskTypes() {
 function mountParts() {
     if [ ! -d /mnt/boot ]; then
         mkdir /mnt/boot
+        read -p "wait:" wait
     fi
     if [ ! -d /mnt/home ]; then
         mkdir /mnt/home
+        read -p "wait:" wait
     fi
 
     mount /dev/volgroup0/lv_root /mnt
@@ -129,7 +131,7 @@ function runChroot() {
     rootPassword=0
 
     useradd -m -g users -G wheel $user
-    echo $userPassword; echo $userPassword; passwd $user
+    echo $userPassword; echo $userPassword | passwd $user
     user=0
     userPassword=0
 
