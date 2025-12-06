@@ -3,9 +3,9 @@ function run() {
     echo "Version 1.0 :3"
     formatDisk
     if [[ $(echo $disk|grep "nvm") != "" ]]; then
-        isNvm = 1
+        isNvm= 1
     else 
-        isNvm = 0
+        isNvm= 0
     fi
 
 
@@ -81,11 +81,11 @@ function formatDisk() {
 
 function encrypt() {
     if [[ $isNvm == 1  ]]; then
-        uuid =$(blkid | grep $disk"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
+        uuid=$(blkid | grep $disk"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
         cryptsetup luksFormat /dev/$disk"p3"
         cryptstup open --type luks /dev/$disk"p3"
     else
-        uuid =$(blkid | grep $disk"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
+        uuid=$(blkid | grep $disk"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
         cryptsetup luksFormat /dev/$disk"3"
         cryptstup open --type luks /dev/$disk"3"
     fi
