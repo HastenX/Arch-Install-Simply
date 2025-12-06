@@ -117,8 +117,8 @@ function runChroot() {
 
     Useradd -m -g users -G wheel $user
     echo $userPassword; echo $userPassword; passwd $user
-    $user=0
-    $userPassword=0
+    user=0
+    userPassword=0
 
     cat txt/sudoersFile.txt > /etc/sudoers
 
