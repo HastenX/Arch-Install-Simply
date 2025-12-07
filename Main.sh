@@ -38,11 +38,11 @@ function run() {
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
-    export sudoers="$(<txt/sudoersFile.txt)"
-    export mkinitcpio="$(<txt/mkinitcpioFile.txt)"
-    export locale="$(<txt/localeFile.txt)"
-    export grubTop="$(<txt/grub/grubTop.txt)"
-    export grubBottom="$(<txt/grub/grubBottom.txt)"
+    export sudoers="$(cat txt/sudoersFile.txt)"
+    export mkinitcpio="$(cat txt/mkinitcpioFile.txt)"
+    export locale="$(cat txt/localeFile.txt)"
+    export grubTop="$(cat txt/grub/grubTop.txt)"
+    export grubBottom="$(cat txt/grub/grubBottom.txt)"
     export desktop="$desktop"
     export user="$user"
     export userPassword="$userPassword"
@@ -154,6 +154,34 @@ function mountParts() {
 }
 
 function runChroot() {
+    mkdir "/etc/storeRes"
+    touch "/etc/storeRes/one"
+    touch "/etc/storeRes/two"
+    touch "/etc/storeRes/three"
+    touch "/etc/storeRes/four"  
+    touch "/etc/storeRes/five"
+    touch "/etc/storeRes/six"
+    touch "/etc/storeRes/seven"
+    touch "/etc/storeRes/eight"  
+    touch "/etc/storeRes/nine"
+    touch "/etc/storeRes/ten"
+    touch "/etc/storeRes/eleven"
+    touch "/etc/storeRes/twelve"
+    touch "/etc/storeRes/therteen"
+    "$1" > "/etc/storeRes/one"
+    "$2" > "/etc/storeRes/two"
+    "$3" > "/etc/storeRes/three"
+    "$4" > "/etc/storeRes/four"  
+    "$5" > "/etc/storeRes/five"
+    "$6" > "/etc/storeRes/six"
+    "$7" > "/etc/storeRes/seven"
+    "$8" > "/etc/storeRes/eight"  
+    "$9" > "/etc/storeRes/nine"
+    "${10}" > "/etc/storeRes/ten"
+    "${11}" > "/etc/storeRes/eleven"
+    "${12}" > "/etc/storeRes/twelve"
+    "${13}" > "/etc/storeRes/therteen"
+
     echo "root:$9" | chpasswd 
     rootPassword=0
 
@@ -170,8 +198,9 @@ function runChroot() {
     else
         mount /dev/${11}"1" /boot/EFI
     fi
-    pacman -Syy --noconfirm mkinitcpio
-    pacman -Syy --noconfirm base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    pacman -Syy --noconfirm mkinitcpio base-devel dosfstools grub git intel-media-drivers
+    pacman -Syy --noconfirm efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux 
+    pacman -Syy --noconfirm linux-headers linux-firmware mesa ufw libva-mesa-driver
     if [[ $6 == "g" ]]; then
         pacman -Syy --noconfirm gnome-desktop gdm
     fi
