@@ -38,21 +38,22 @@ function run() {
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
-    export sudoers="$(cat txt/sudoersFile.txt)"
-    export mkinitcpio="$(cat txt/mkinitcpioFile.txt)"
-    export locale="$(cat txt/localeFile.txt)"
-    export grubTop="$(cat txt/grub/grubTop.txt)"
-    export grubBottom="$(cat txt/grub/grubBottom.txt)"
-    export desktop="$desktop"
-    export user="$user"
-    export userPassword="$userPassword"
-    export rootPassword="$rootPassword"
-    export isNvm="$isNvm"
-    export disk="$disk"
-    export encryption="$encryption"
-    export uuid="$uuid"
+    # export sudoersFile="$(cat txt/sudoersFile.txt)"
+    export sudoersFile="$(cat txt/sudoersFile.txt)"
+    export mkinitcpioFile="$(cat txt/mkinitcpioFile.txt)"
+    export localeFile="$(cat txt/localeFile.txt)"
+    export grubTopFile="$(cat txt/grub/grubTop.txt)"
+    export grubBottomFile="$(cat txt/grub/grubBottom.txt)"
+    export desktopVar="$(echo '$desktop')"
+    export userVar="$(echo '$user')"
+    export userPasswordVar="$(echo '$userPassword')"
+    export rootPasswordVar="$(echo '$rootPassword')"
+    export isNvmVar="$(echo '$isNvm')"
+    export diskVar="$(echo '$disk')"
+    export encryptionVar="$(echo '$encryption')"
+    export uuidVar="$(echo '$uuid')"
 
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoers' '$mkinitcpio' '$locale' '$grubTop' '$grubBottom' '$desktop' '$user' '$userPassword' '$rootPassword' '$isNvm' '$disk' '$encryption' '$uuid'"
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoersFile' '$mkinitcpioFile' '$localeFile' '$grubTopFile' '$grubBottomFile' '$desktopVar' '$userVar' '$userPasswordVar' '$rootPasswordVar' '$isNvmVar' '$diskVar' '$encryptionVar' '$uuidVar'"
 
     # umount -a
 
@@ -168,19 +169,19 @@ function runChroot() {
     touch "/etc/storeRes/eleven"
     touch "/etc/storeRes/twelve"
     touch "/etc/storeRes/therteen"
-    echo "$1" > "/etc/storeRes/one"
-    echo "$2" > "/etc/storeRes/two"
-    echo "$3" > "/etc/storeRes/three"
-    echo "$4" > "/etc/storeRes/four"  
-    echo "$5" > "/etc/storeRes/five"
-    echo "$6" > "/etc/storeRes/six"
-    echo "$7" > "/etc/storeRes/seven"
-    echo "$8" > "/etc/storeRes/eight"  
-    echo "$9" > "/etc/storeRes/nine"
-    echo "${10}" > "/etc/storeRes/ten"
-    echo "${11}" > "/etc/storeRes/eleven"
-    echo "${12}" > "/etc/storeRes/twelve"
-    echo "${13}" > "/etc/storeRes/therteen"
+    echo "$1" > "/etc/storeRes/one" #about only half of file
+    echo "$2" > "/etc/storeRes/two" #only the word "to"
+    echo "$3" > "/etc/storeRes/three" #only the word "find "
+    echo "$4" > "/etc/storeRes/four" #only the word "commands."
+    echo "$5" > "/etc/storeRes/five" #nothing
+    echo "$6" > "/etc/storeRes/six" #nothing
+    echo "$7" > "/etc/storeRes/seven" #nothing
+    echo "$8" > "/etc/storeRes/eight"  #nothing
+    echo "$9" > "/etc/storeRes/nine" #nothing
+    echo "${10}" > "/etc/storeRes/ten" #nothing
+    echo "${11}" > "/etc/storeRes/eleven" #nothing
+    echo "${12}" > "/etc/storeRes/twelve" #nothing
+    echo "${13}" > "/etc/storeRes/therteen" #nothing
 
     echo "root:$9" | chpasswd 
     rootPassword=0
