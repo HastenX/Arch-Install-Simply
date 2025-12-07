@@ -2,7 +2,7 @@ function run() {
     echo "Simple Arch Install"
     echo "Version 1.0 :3"
     formatDisk
-    if [[ $(echo $diskVar|grep "nvm") != "" ]]; then
+    if [[ $(echo "$diskVar"|grep "nvm") != "" ]]; then
         isNvmVar=1
     else 
         isNvmVar=0
@@ -27,7 +27,7 @@ function run() {
     read -sp "Please enter the root password: " rootPasswordVar
     echo ""
     read -p "Please enter your username: " userVar
-    read -sp "Please enter $user's password: " userPasswordVar
+    read -sp "Please enter $userVar's password: " userPasswordVar
     echo ""
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktopVar
 
@@ -48,22 +48,12 @@ function run() {
     export userVar="$userVar"
     export userPasswordVar="$userPasswordVar"
     export rootPasswordVar="$rootPasswordVar"
-    export isNvmVar="$isNvm"
-    export diskVar="$disk" 
+    export isNvmVar="$isNvmVar"
+    export diskVar="$diskVar" 
     export encryptionVar="$encryptionVar"
-    export uuidVar="$uuid"
+    export uuidVar="$uuidVar"
 
-    echo "$sudoersFile" #good here
-    read -p "sudo: " wait
-    echo "$mkinitcpioFile" #good here
-    read -p "mk: " wait
-    echo "$localeFile" #good here
-    read -p "locale: " wait
-    echo "$grubTopFile" #good here
-    read -p "grub1: " wait
-    echo "$grubBottomFile" #good here
-    read -p "grub2: " wait
-    echo "rootpasswd:$rootPasswordVar,isNvm:$isNvmVar,disk:$diskVar,encryption:$encryptionVar,uuid:$uuidVar"
+    echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     read -p "Vars: " wait
 
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot \"$sudoersFile\" \"$mkinitcpioFile\" \"$localeFile\" \"$grubTopFile\" \"$grubBottomFile\" \"$desktopVar\" \"$userVar\" \"$userPasswordVar\" \"$rootPasswordVar\" \"$isNvmVar\" \"$diskVar\" \"$encryptionVar\" \"$uuidVar\""
