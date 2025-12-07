@@ -31,12 +31,12 @@ function run() {
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
-    read -p "Please enter the root password: " rootPassword
+    read -sp "Please enter the root password: " rootPassword
     read -p "Please enter your username: " user
-    read -p "Please enter $user password: " userPassword
+    read -sp "Please enter $user's password: " userPassword
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
 
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot"
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot $(cat txt/sudoersFile.txt) $(cat txt/mkinitcpioFile.txt) $(cat txt/localeFile.txt)" $(cat txt/grub/grubTop.txt)" $(cat txt/grub/grubBottom.txt) $desktop $user $userPassword $rootPassword $isNvm $disk $encryption $uuid"
 
     umount -a
 
@@ -138,32 +138,51 @@ function mountParts() {
 }
 
 function runChroot() {
-    {
-        echo $rootPassword; 
-        echo $rootPassword
-    } | passwd
+    echo "root:$9" | chpasswd
     rootPassword=0
 
-    useradd -m -g users -G wheel $user
-    echo $userPassword; echo $userPassword | passwd $user
+    useradd -m -g users -G wheel $7
+    echo "$7:$8" | chpasswd
     user=0
     userPassword=0
 
-    cat txt/sudoersFile.txt > /etc/sudoers
+    cat $1 > /etc/sudoers
 
-    mountBoot
+    mkdir /boot/EFI
+    if [[ $10 == 1 ]]; then
+        mount /dev/$11"p1" /boot/EFI
+    else
+        mount /dev/$11"1" /boot/EFI
+    fi
 
     echo Y | pacman -Sy  base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
-    setDesktop $desktop
+    if [[ $6 == "g" ]]; then
+        echo Y | pacman -Sy gnome-desktop gdm
+    fi
+    if [[ $6 == "p" ]]; then
+        echo Y | pacman -Sy plasma-desktop sddm
+    fi
+    if [[ $6 == "h" ]]; then
+        echo Y | pacman -Sy hyprland
+    fi
+    if [[ $6 != "g" && $6 != "p" && $6 != "h" ]]; then
+        echo "None anwsers recieved, default to plasma:"
+        echo Y | pacman -Sy plasma-desktop sddm
+    fi
 
-    $(cat txt/mkinitcpioFile.txt) > /etc/mkinitcpio.conf
+    $2 > /etc/mkinitcpio.conf
     mkinitcpio -p linux 
 
-    $(cat txt/localeFile.txt) > /etc/locale.gen
+    $3 > /etc/locale.gen
     locale-gen
 
-    generateGrubFile
-    $(cat txt/grub/compiledGrub.txt) > /etc/default/grub
+    cat $4 > /etc/default/grub
+    if [[ $12 == "Y" ]]; then
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$13:volgroup0 quiet" >> /etc/default/grub
+    else
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> /etc/default/grub
+    fi
+    $5 >> /etc/default/grub
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
     cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
@@ -171,48 +190,12 @@ function runChroot() {
 
     systemctl enable networkmanager
     systemctl enable ufw
-    if [[ $desktop == "p" ]]; then
+    if [[ $6 == "p" ]]; then
         systemctl enable sddm
     fi
-    if [[ $desktop == "g" ]]; then
+    if [[ $6 == "g" ]]; then
         systemctl enable gdm
     fi 
-}
-
-function mountBoot() {
-    mkdir /boot/EFI
-    if [[ $isNvm == 1 ]]; then
-        mount /dev/$disk"p1" /boot/EFI
-    else
-        mount /dev/$disk"1" /boot/EFI
-    fi
-}
-
-function setDesktop() {
-    if [[ $1 == "g" ]]; then
-        echo Y | pacman -Sy gnome-desktop gdm
-        return
-    fi
-    if [[ $1 == "p" ]]; then
-        echo Y | pacman -Sy plasma-desktop sddm
-        return
-    fi
-    if [[ $1 == "h" ]]; then
-        echo Y | pacman -Sy hyprland
-        return
-    fi
-    echo "None anwsers recieved, default to plasma:"
-    echo Y | pacman -Sy plasma-desktop sddm
-}
-
-function generateGrubFile() {
-    cat txt/grub/grubTop.txt > txt/grub/compiledGrub.txt
-    if [[ $encryption == "Y" ]]; then
-        $(echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$uuid:volgroup0 quiet") >> txt/grub/compiledGrub.txt
-    else
-        $(echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet") >> txt/grub/compiledGrub.txt
-    fi
-    $(cat txt/grub/grubBottom.txt) >> txt/grub/compiledGrub.txt
 }
 
 run
