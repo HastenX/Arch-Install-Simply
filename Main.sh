@@ -168,19 +168,19 @@ function runChroot() {
     touch "/etc/storeRes/eleven"
     touch "/etc/storeRes/twelve"
     touch "/etc/storeRes/therteen"
-    "$1" > "/etc/storeRes/one"
-    "$2" > "/etc/storeRes/two"
-    "$3" > "/etc/storeRes/three"
-    "$4" > "/etc/storeRes/four"  
-    "$5" > "/etc/storeRes/five"
-    "$6" > "/etc/storeRes/six"
-    "$7" > "/etc/storeRes/seven"
-    "$8" > "/etc/storeRes/eight"  
-    "$9" > "/etc/storeRes/nine"
-    "${10}" > "/etc/storeRes/ten"
-    "${11}" > "/etc/storeRes/eleven"
-    "${12}" > "/etc/storeRes/twelve"
-    "${13}" > "/etc/storeRes/therteen"
+    echo "$1" > "/etc/storeRes/one"
+    echo "$2" > "/etc/storeRes/two"
+    echo "$3" > "/etc/storeRes/three"
+    echo "$4" > "/etc/storeRes/four"  
+    echo "$5" > "/etc/storeRes/five"
+    echo "$6" > "/etc/storeRes/six"
+    echo "$7" > "/etc/storeRes/seven"
+    echo "$8" > "/etc/storeRes/eight"  
+    echo "$9" > "/etc/storeRes/nine"
+    echo "${10}" > "/etc/storeRes/ten"
+    echo "${11}" > "/etc/storeRes/eleven"
+    echo "${12}" > "/etc/storeRes/twelve"
+    echo "${13}" > "/etc/storeRes/therteen"
 
     echo "root:$9" | chpasswd 
     rootPassword=0
@@ -233,7 +233,7 @@ function runChroot() {
     cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
     grub-mkconfig -o /boot/grub/grub.cfg
 
-    systemctl enable networkmanager
+    systemctl enable NetworkManager
     systemctl enable ufw
     if [[ $6 == "p" ]]; then
         systemctl enable sddm
