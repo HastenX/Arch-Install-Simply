@@ -139,13 +139,13 @@ function setDiskTypes() {
 }
 
 function mountParts() {
-    if [ ! -d /mnt/boot ]; then
-        mkdir /mnt/boot
+    if [ ! -d /mnt/home ]; then
+        mkdir /mnt/home
         mountParts
         return
     fi
-    if [ ! -d /mnt/home ]; then
-        mkdir /mnt/home
+        if [ ! -d /mnt/boot ]; then
+        mkdir /mnt/boot
         mountParts
         return
     fi
@@ -225,11 +225,11 @@ function runChroot() {
 
     echo "$1" > "/etc/sudoers"
 
-    mkdir "/boot/EFI"
+    mkdir "/mnt/boot/EFI"
     if [[ "${10}" == 1 ]]; then
-        mount "/dev/"${11}"p1" "/boot/EFI"
+        mount "/dev/"${11}"p1" "/mnt/boot/EFI"
     else
-        mount "/dev/"${11}"1" "/boot/EFI"
+        mount "/dev/"${11}"1" "/mnt/boot/EFI"
     fi
     pacman -Syy --noconfirm grub kitty
     pacman -Syy --noconfirm git intel-media-drivers
