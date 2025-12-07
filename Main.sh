@@ -8,6 +8,11 @@ function run() {
         isNvmVar=0
     fi
 
+    if [[ $isNvmVar == 1]]; then
+        uuid=$(blkid | grep $diskVar"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
+    else
+        uuid=$(blkid | grep $diskVar"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
+    fi
 
     read -p "Would you like encryption?(Y/n): " encryptionVar
     if [[ $encryptionVar == "Y" ]]; then
@@ -56,20 +61,20 @@ function run() {
     # echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     # read -p "Vars: " wait
 
-    arch-chroot /mnt "$(declare -f runChroot); runChroot"
-    "$(printf '%q' "$sudoersFile")"
-    "$(printf '%q' "$mkinitcpioFile")"
-    "$(printf '%q' "$localeFile")"
-    "$(printf '%q' "$grubTopFile")"
-    "$(printf '%q' "$grubBottomFile")"
-    "$(printf '%q' "$desktopVar")"
-    "$(printf '%q' "$userVar")"
-    "$(printf '%q' "$userPasswordVar")"
-    "$(printf '%q' "$rootPasswordVar")"
-    "$(printf '%q' "$isNvmVar")"
-    "$(printf '%q' "$diskVar")"
-    "$(printf '%q' "$encryptionVar")"
-    "$(printf '%q' "$uuidVar")"
+    arch-chroot /mnt "$(declare -f runChroot); runChroot" 
+    "$sudoersFile"
+    "$mkinitcpioFile"
+    "$localeFile"
+    "$grubTopFile"
+    "$grubBottomFile"
+    "$desktopVar"
+    "$userVar"
+    "$userPasswordVar"
+    "$rootPasswordVar"
+    "$isNvmVar"
+    "$diskVar"
+    "$encryptionVar"
+    "$uuidVar"
 
     if [[ $isNvm == 1 ]]; then
         {
@@ -102,11 +107,9 @@ function formatDisk() {
 
 function encrypt() {
     if [[ $isNvm == 1  ]]; then
-        uuid=$(blkid | grep $diskVar"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
         cryptsetup luksFormat /dev/$diskVar"p3"
         cryptsetup open --type luks /dev/$diskVar"p3"
     else
-        uuid=$(blkid | grep $diskVar"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
         cryptsetup luksFormat /dev/$diskVar"3"
         cryptsetup open --type luks /dev/$diskVar"3"
     fi
@@ -168,33 +171,33 @@ function mountParts() {
 }
 
 function runChroot() {
-    mkdir "/etc/storeRes"
-    touch "/etc/storeRes/one"
-    touch "/etc/storeRes/two"
-    touch "/etc/storeRes/three"
-    touch "/etc/storeRes/four"  
-    touch "/etc/storeRes/five"
-    touch "/etc/storeRes/six"
-    touch "/etc/storeRes/seven"
-    touch "/etc/storeRes/eight"  
-    touch "/etc/storeRes/nine"
-    touch "/etc/storeRes/ten"
-    touch "/etc/storeRes/eleven"
-    touch "/etc/storeRes/twelve"
-    touch "/etc/storeRes/thirteen"
-    echo "$1" > "/etc/storeRes/one" #about only half of file
-    echo "$2" > "/etc/storeRes/two" #only the word "to"
-    echo "$3" > "/etc/storeRes/three" #only the word "find "
-    echo "$4" > "/etc/storeRes/four" #only the word "commands."
-    echo "$5" > "/etc/storeRes/five" #nothing
-    echo "$6" > "/etc/storeRes/six" #nothing
-    echo "$7" > "/etc/storeRes/seven" #nothing
-    echo "$8" > "/etc/storeRes/eight"  #nothing
-    echo "$9" > "/etc/storeRes/nine" #nothing
-    echo "${10}" > "/etc/storeRes/ten" #nothing
-    echo "${11}" > "/etc/storeRes/eleven" #nothing
-    echo "${12}" > "/etc/storeRes/twelve" #nothing
-    echo "${13}" > "/etc/storeRes/thirteen" #nothing
+    # mkdir "/etc/storeRes"
+    # touch "/etc/storeRes/one"
+    # touch "/etc/storeRes/two"
+    # touch "/etc/storeRes/three"
+    # touch "/etc/storeRes/four"  
+    # touch "/etc/storeRes/five"
+    # touch "/etc/storeRes/six"
+    # touch "/etc/storeRes/seven"
+    # touch "/etc/storeRes/eight"  
+    # touch "/etc/storeRes/nine"
+    # touch "/etc/storeRes/ten"
+    # touch "/etc/storeRes/eleven"
+    # touch "/etc/storeRes/twelve"
+    # touch "/etc/storeRes/thirteen"
+    # echo "$1" > "/etc/storeRes/one" #about only half of file
+    # echo "$2" > "/etc/storeRes/two" #only the word "to"
+    # echo "$3" > "/etc/storeRes/three" #only the word "find "
+    # echo "$4" > "/etc/storeRes/four" #only the word "commands."
+    # echo "$5" > "/etc/storeRes/five" #nothing
+    # echo "$6" > "/etc/storeRes/six" #nothing
+    # echo "$7" > "/etc/storeRes/seven" #nothing
+    # echo "$8" > "/etc/storeRes/eight"  #nothing
+    # echo "$9" > "/etc/storeRes/nine" #nothing
+    # echo "${10}" > "/etc/storeRes/ten" #nothing
+    # echo "${11}" > "/etc/storeRes/eleven" #nothing
+    # echo "${12}" > "/etc/storeRes/twelve" #nothing
+    # echo "${13}" > "/etc/storeRes/thirteen" #nothing
 
     echo "root:$9" | chpasswd 
 
