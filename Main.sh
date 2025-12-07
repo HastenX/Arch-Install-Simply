@@ -57,7 +57,7 @@ function run() {
 
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoers' '$mkinitcpio' '$locale' '$grubTop' '$grubBottom' '$desktop' '$user' '$userPassword' '$rootPassword' '$isNvm' '$disk' '$encryption' '$uuid'"
 
-    # umount -a
+    umount -a
 
     if [[ $isNvm == 1 ]]; then
         {
@@ -72,7 +72,7 @@ function run() {
         echo "w" 
         }| fdisk /dev/$disk
     fi 
-    # reboot
+    reboot
 }
 
 function formatDisk() {
@@ -173,26 +173,20 @@ function runChroot() {
     else
         mount /dev/${11}"1" /boot/EFI
     fi
-    {
-        echo ""
-        echo "Y"
-    } | pacman -Syyu 
-    {
-        echo ""
-        echo "Y"
-    } | pacman -Syy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    
+    pacman -Syyu --noconfirmpacman -Syy --noconfirm base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     if [[ $6 == "g" ]]; then
-        echo Y | pacman -Syy gnome-desktop gdm
+        pacman -Syy --noconfirm gnome-desktop gdm
     fi
     if [[ $6 == "p" ]]; then
-        echo Y | pacman -Syy plasma-desktop sddm
+        pacman -Syy --noconfirm plasma-desktop sddm
     fi
     if [[ $6 == "h" ]]; then
-        echo Y | pacman -Syy hyprland
+        pacman -Syy --noconfirm hyprland
     fi
     if [[ $6 != "g" && $6 != "p" && $6 != "h" ]]; then
         echo "None anwsers recieved, default to plasma:"
-        echo Y | pacman -Syy plasma-desktop sddm
+        pacman -Syy --noconfirm plasma-desktop sddm
     fi
 
     echo $2 > /etc/mkinitcpio.conf
