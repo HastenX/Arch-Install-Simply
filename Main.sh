@@ -161,6 +161,32 @@ function mountParts() {
 function runChroot() {
     if [ "$#" -lt 13 ]; then
         echo "Error: Minimum of 13 parameters required."
+        echo "$1"
+        read -p "Wait: " w
+        echo "$2"
+        read -p "Wait: " w
+        echo "$3"
+        read -p "Wait: " w
+        echo "$4"
+        read -p "Wait: " w
+        echo "$5"
+        read -p "Wait: " w
+        echo "$6"
+        read -p "Wait: " w
+        echo "$7"
+        read -p "Wait: " w
+        echo "$8"
+        read -p "Wait: " w
+        echo "$9"
+        read -p "Wait: " w
+        echo "$10"
+        read -p "Wait: " w
+        echo "$11"
+        read -p "Wait: " w
+        echo "$12"
+        read -p "Wait: " w
+        echo "$13"
+        read -p "Wait: " w
         return 1
     fi
     mkdir "/etc/storeRes"
