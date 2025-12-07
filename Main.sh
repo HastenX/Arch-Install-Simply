@@ -38,20 +38,6 @@ function run() {
 
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
-    export sudoersFile="$(cat txt/sudoersFile.txt)" 
-    export mkinitcpioFile="$(cat txt/mkinitcpioFile.txt)"
-    export localeFile="$(cat txt/localeFile.txt)"
-    export grubTopFile="$(cat txt/grub/grubTop.txt)"
-    export grubBottomFile="$(cat txt/grub/grubBottom.txt)"
-    export desktopVar
-    export userVar
-    export userPasswordVar
-    export rootPasswordVar
-    export isNvmVar
-    export diskVar
-    export encryptionVar
-    export uuidVar
-
     # echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     # read -p "Vars: " wait
 
@@ -181,6 +167,7 @@ function mountParts() {
 }
 
 function runChroot() {
+    exportFiles
     arch-chroot /mnt bash -c "
     mkdir "/etc/storeRes"
     touch "/etc/storeRes/one"
@@ -211,23 +198,28 @@ function runChroot() {
     echo "$uuidVar" > "/etc/storeRes/thirteen"
     "
 
+    exportFiles
     arch-chroot /mnt bash -c "echo "root:$rootPasswordVar" | chpasswd "
     rootPasswordVar=0
 
-    arch-chroot /mnt bash -c "useradd -m -g users -G wheel "$7""
+    exportFiles
+    arch-chroot /mnt bash -c "useradd -m -g users -G wheel "$userVar""
+    exportFiles
     arch-chroot /mnt bash -c "echo "$userVar:$userPasswordVar" | chpasswd "
     userVar=0
     userPasswordVar=0
-
+    exportFiles
     arch-chroot /mnt bash -c "echo "$sudoersFile" > /etc/sudoers"
 
     arch-chroot /mnt bash -c "mkdir "/boot/EFI""
     if [[ "$isNvmVar" == 1 ]]; then
+        exportFiles
         arch-chroot /mnt bash -c "mount /dev/$diskVar'p1' /boot/EFI"
     else
-       arch-chroot /mnt bash -c "mount /dev/$diskVar'1' /boot/EFI"
+        exportFiles
+        arch-chroot /mnt bash -c "mount /dev/$diskVar'1' /boot/EFI"
     fi
-    arch-chroot /mnt bash -c "pacman -Syy --noconfirm grub git intel-media-drivers; pacman -Syy --noconfirm mkinitcpio base-devel dosfstools; pacman -Syy --noconfirm efibootmgr mtools linux; pacman -Syy --noconfirm networkmanager os-prober bash-completion; pacman -Syy --noconfirm linux-headers linux-firmware mesa; pacman -Syy --noconfirm ufw libva-mesa-driver lvm2"
+    arch-chroot /mnt bash -c "pacman -Syy --noconfirm grub git intel-media-drivers; pacman -Syy --noconfirm mkinitcpio base-devel dosfstools; pacman -Syy --noconfirm efibootmgr mtools linux; pacman -Syy --noconfirm networkmanager os-prober bash-completion; pacman -Syy --noconfirm linux-headers linux-firmware mesa; pacman -Syy --noconfirm ufw libva-mesa-driver lvm2; pacman -Syy --noconfirm grub"
     if [[ "$desktop" == "g" ]]; then
         arch-chroot /mnt bash -c "pacman -Syy --noconfirm gnome-desktop gdm"
         arch-chroot /mnt bash -c "systemctl enable gdm"
@@ -245,20 +237,24 @@ function runChroot() {
         arch-chroot /mnt bash -c "systemctl enable sddm"
     fi
 
+    exportFiles
     arch-chroot /mnt bash -c "echo "$mkinitcpioFile" > /etc/mkinitcpio.conf"
     arch-chroot /mnt bash -c "mkinitcpio -p linux"
 
+    exportFiles
     arch-chroot /mnt bash -c "echo "$localeFile" > /etc/locale.gen"
     arch-chroot /mnt bash -c "locale-gen"
 
+    exportFiles
     arch-chroot /mnt bash -c "echo "$grubTopFile" > /etc/default/grub"
-    if [[ ${12} == "Y" ]]; then
+    exportFiles
+    if [[ $encryptionVar == "Y" ]]; then
         arch-chroot /mnt bash -c "echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$uuid:volgroup0 quiet" >> "/etc/default/grub""
     else
         arch-chroot /mnt bash -c "echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> "/etc/default/grub""
     fi
-    arch-chroot /mnt bash -c "echo "$5" >> "/etc/default/grub""
-
+    exportFiles
+    arch-chroot /mnt bash -c "echo "$grubBottomFile" >> "/etc/default/grub""
     arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck"
     arch-chroot /mnt bash -c "cp "/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "/boot/grub/locale/en.mo""
     arch-chroot /mnt bash -c "grub-mkconfig -o "/boot/grub/grub.cfg""
@@ -267,4 +263,20 @@ function runChroot() {
     arch-chroot /mnt bash -c "systemctl enable ufw"
 }
 
-run
+function exportFiles() {
+    export sudoersFile="$(cat txt/sudoersFile.txt)" 
+    export mkinitcpioFile="$(cat txt/mkinitcpioFile.txt)"
+    export localeFile="$(cat txt/localeFile.txt)"
+    export grubTopFile="$(cat txt/grub/grubTop.txt)"
+    export grubBottomFile="$(cat txt/grub/grubBottom.txt)"
+    export desktopVar
+    export userVar
+    export userPasswordVar
+    export rootPasswordVar
+    export isNvmVar
+    export diskVar
+    export encryptionVar
+    export uuidVar
+}
+runChroot
+# run
