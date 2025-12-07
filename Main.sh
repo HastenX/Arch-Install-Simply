@@ -278,7 +278,8 @@ function runChroot() {
     echo 'GRUB_PRELOAD_MODULES="part_gpt part_msdos"' >> "/etc/default/grub"
     echo "$5" >> "/etc/default/grub"
 
-    grub-install --target=x86_64-efi --bootloader-id=grub_uefi --efi-directory=/boot/EFI --recheck --removeable
+    grub-install --target=x86_64-efi --bootloader-id=grub_uefi --efi-directory=/boot/EFI --recheck
+    # grub-install --target=x86_64-efi --bootloader-id=grub_uefi --efi-directory=/boot/EFI --recheck --removeable
     cp "/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "/boot/grub/locale/en.mo"
     grub-mkconfig -o "/boot/grub/grub.cfg"
 
