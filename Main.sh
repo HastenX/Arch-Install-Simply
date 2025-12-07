@@ -20,6 +20,7 @@ function run() {
     fi
 
     modprobe dm_mod
+    modprobe efivarfs
 
     partitionThird
     setDiskTypes
@@ -230,7 +231,7 @@ function runChroot() {
     else
         mount "/dev/"${11}"1" "/boot/EFI"
     fi
-    pacman -Syy --noconfirm grub
+    pacman -Syy --noconfirm grub kitty
     pacman -Syy --noconfirm git intel-media-drivers
     pacman -Syy --noconfirm mkinitcpio base-devel dosfstools 
     pacman -Syy --noconfirm efibootmgr mtools linux
@@ -262,11 +263,11 @@ function runChroot() {
 
     echo "$4" > "/etc/default/grub"
     if [[ ${12} == "Y" ]]; then
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=${13}:volgroup0 quiet" >> "/etc/default/grub"
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=${13}:volgroup0 quiet"' >> "/etc/default/grub"
     else
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> "/etc/default/grub"
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"' >> "/etc/default/grub"
     fi
-    echo GRUB_PRELOAD_MODULES="part_gpt part_msdos" >> "/etc/default/grub"
+    echo 'GRUB_PRELOAD_MODULES="part_gpt part_msdos"' >> "/etc/default/grub"
     echo "$5" >> "/etc/default/grub"
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
