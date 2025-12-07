@@ -1,4 +1,3 @@
-GRUB_PRELOAD_MODULES="part_gpt part_msdos"
 GRUB_TIMEOUT_STYLE=menu
 GRUB_TERMINAL_INPUT=console
 GRUB_GFXMODE=auto

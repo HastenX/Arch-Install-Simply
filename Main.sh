@@ -266,6 +266,7 @@ function runChroot() {
     else
         echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> "/etc/default/grub"
     fi
+    echo "GRUB_PRELOAD_MODULES="part_gpt part_msdos"" >> "/etc/default/grub"
     echo "$5" >> "/etc/default/grub"
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
