@@ -38,6 +38,8 @@ function run() {
     echo ""
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
 
+    echo "Values: $sudoers, $mkinitcpio, $locale, $grubTop, $grubBottom, $desktop, $user, $userPassword, $rootPassword, $isNvm, $disk, $encryption, $uuid"
+    read -p "Wait: " wait
     export sudoers=$(<txt/sudoersFile.txt)
     export mkinitcpio=$(<txt/mkinitcpioFile.txt)
     export locale=$(<txt/localeFile.txt)
@@ -52,7 +54,7 @@ function run() {
     export encryption="$encryption"
     export uuid="$uuid"
 
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot $sudoers $mkinitcpio $locale $grubTop $grubBottom $desktop $user $userPassword $rootPassword $isNvm $disk $encryption $uuid"
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoers' '$mkinitcpio' '$locale' '$grubTop' '$grubBottom' '$desktop' '$user' '$userPassword' '$rootPassword' '$isNvm' '$disk' '$encryption' '$uuid'"
 
     umount -a
 
