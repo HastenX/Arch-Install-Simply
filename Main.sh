@@ -2,15 +2,15 @@ function run() {
     echo "Simple Arch Install"
     echo "Version 1.0 :3"
     formatDisk
-    if [[ $(echo $disk|grep "nvm") != "" ]]; then
-        isNvm=1
+    if [[ $(echo $diskVar|grep "nvm") != "" ]]; then
+        isNvmVar=1
     else 
-        isNvm=0
+        isNvmVar=0
     fi
 
 
-    read -p "Would you like encryption?(Y/n): " encryption
-    if [[ $encryption == "Y" ]]; then
+    read -p "Would you like encryption?(Y/n): " encryptionVar
+    if [[ $encryptionVar == "Y" ]]; then
         encrypt
     fi
 
@@ -24,12 +24,12 @@ function run() {
 
     mountParts
 
-    read -sp "Please enter the root password: " rootPassword
+    read -sp "Please enter the root password: " rootPasswordVar
     echo ""
-    read -p "Please enter your username: " user
-    read -sp "Please enter $user's password: " userPassword
+    read -p "Please enter your username: " userVar
+    read -sp "Please enter $user's password: " userPasswordVar
     echo ""
-    read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
+    read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktopVar
 
     {
         echo ""
@@ -39,34 +39,34 @@ function run() {
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
     # export sudoersFile="$(cat txt/sudoersFile.txt)"
-    export sudoersFile="$(cat txt/sudoersFile.txt)"
+    export sudoersFile="$(cat txt/sudoersFile.txt)" 
     export mkinitcpioFile="$(cat txt/mkinitcpioFile.txt)"
     export localeFile="$(cat txt/localeFile.txt)"
     export grubTopFile="$(cat txt/grub/grubTop.txt)"
     export grubBottomFile="$(cat txt/grub/grubBottom.txt)"
-    export desktopVar="$desktop"
-    export userVar="$user"
-    export userPasswordVar="$userPassword"
-    export rootPasswordVar="$$rootPassword"
+    export desktopVar="$desktopVar"
+    export userVar="$userVar"
+    export userPasswordVar="$userPasswordVar"
+    export rootPasswordVar="$rootPasswordVar"
     export isNvmVar="$isNvm"
-    export diskVar="$$disk"
-    export encryptionVar="$$encryption"
+    export diskVar="$disk" 
+    export encryptionVar="$encryptionVar"
     export uuidVar="$uuid"
 
-    echo "$sudoersFile"
+    echo "$sudoersFile" #good here
     read -p "sudo: " wait
-    echo "$mkinitcpioFile"
+    echo "$mkinitcpioFile" #good here
     read -p "mk: " wait
-    echo "$localeFile"
+    echo "$localeFile" #good here
     read -p "locale: " wait
-    echo "$grubTopFile"
+    echo "$grubTopFile" #good here
     read -p "grub1: " wait
-    echo "$grubBottomFile"
+    echo "$grubBottomFile" #good here
     read -p "grub2: " wait
-    echo "desktop:$desktopVar,user:$userVar,passwd:$userPasswordVar,rootpasswd:$rootPasswordVar,isNvm:$isNvmVar,disk:$diskVar,encryption:$encryptionVar,uuid:$uuidVar"
+    echo "rootpasswd:$rootPasswordVar,isNvm:$isNvmVar,disk:$diskVar,encryption:$encryptionVar,uuid:$uuidVar"
     read -p "Vars: " wait
 
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoersFile' '$mkinitcpioFile' '$localeFile' '$grubTopFile' '$grubBottomFile' '$desktopVar' '$userVar' '$userPasswordVar' '$rootPasswordVar' '$isNvmVar' '$diskVar' '$encryptionVar' '$uuidVar'"
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot \"$sudoersFile\" \"$mkinitcpioFile\" \"$localeFile\" \"$grubTopFile\" \"$grubBottomFile\" \"$desktopVar\" \"$userVar\" \"$userPasswordVar\" \"$rootPasswordVar\" \"$isNvmVar\" \"$diskVar\" \"$encryptionVar\" \"$uuidVar\""
 
     # umount -a
 
@@ -88,13 +88,12 @@ function run() {
 
 function formatDisk() {
     lsblk 
-    echo "Please enter the disk you'd like to format:"
-    read disk
-    echo "p" | fdisk /dev/$disk
+    read -p "Please enter the disk you'd like to format: " diskVar
+    echo "p" | fdisk /dev/$diskVar
     read -p "Are you certain that this is the disk you want to reformat?(Y/n): " response
 
     if [[ $response == "Y" ]]; then
-        cat txt/diskPartitionInput.txt | fdisk /dev/$disk
+        cat txt/diskPartitionInput.txt | fdisk /dev/$diskVar
     else
         formatDisk
     fi
@@ -113,7 +112,7 @@ function encrypt() {
 }
 
 function partitionThird() {
-    if [[ $encryption == "Y" ]]; then
+    if [[ $encryptionVar == "Y" ]]; then
         pvcreate -ff /dev/mapper/lvm
         vgcreate volgroup0 /dev/mapper/lvm
 
