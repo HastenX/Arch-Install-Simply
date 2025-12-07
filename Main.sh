@@ -57,7 +57,7 @@ function run() {
 
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoers' '$mkinitcpio' '$locale' '$grubTop' '$grubBottom' '$desktop' '$user' '$userPassword' '$rootPassword' '$isNvm' '$disk' '$encryption' '$uuid'"
 
-    umount -a
+    # umount -a
 
     if [[ $isNvm == 1 ]]; then
         {
@@ -173,8 +173,14 @@ function runChroot() {
     else
         mount /dev/${11}"1" /boot/EFI
     fi
-    echo Y | pacman -Syyu 
-    echo Y | pacman -Syy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    {
+        echo ""
+        echo "Y"
+    } | pacman -Syyu 
+    {
+        echo ""
+        echo "Y"
+    } | pacman -Syy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     if [[ $6 == "g" ]]; then
         echo Y | pacman -Syy gnome-desktop gdm
     fi
