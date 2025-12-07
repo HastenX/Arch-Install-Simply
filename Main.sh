@@ -32,11 +32,27 @@ function run() {
     genfstab -U -p /mnt >> /mnt/etc/fstab
 
     read -sp "Please enter the root password: " rootPassword
+    echo ""
     read -p "Please enter your username: " user
     read -sp "Please enter $user's password: " userPassword
+    echo ""
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
 
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot $(cat txt/sudoersFile.txt) $(cat txt/mkinitcpioFile.txt) $(cat txt/localeFile.txt) $(cat txt/grub/grubTop.txt) $(cat txt/grub/grubBottom.txt) $desktop $user $userPassword $rootPassword $isNvm $disk $encryption $uuid"
+    export sudoers=$(<txt/sudoersFile.txt)
+    export mkinitcpio=$(<txt/mkinitcpioFile.txt)
+    export locale=$(<txt/localeFile.txt)
+    export grubTop=$(<txt/grub/grubTop.txt)
+    export grubBottom=$(<txt/grub/grubBottom.txt)
+    export desktop="$desktop"
+    export user="$user"
+    export userPassword="$userPassword"
+    export rootPassword="$rootPassword"
+    export isNvm="$isNvm"
+    export disk="$disk"
+    export encryption="$encryption"
+    export uuid="$uuid"
+
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot $sudoers $mkinitcpio $locale $grubTop $grubBottom $desktop $user $userPassword $rootPassword $isNvm $disk $encryption $uuid"
 
     umount -a
 
@@ -45,13 +61,13 @@ function run() {
             echo "d" 
             echo "4" 
             echo "w"
-        } | fdisk /dev/$disk"p3"
+        } | fdisk /dev/$disk
     else 
         {
         echo "d" 
         echo "4"
         echo "w" 
-        }| fdisk /dev/$disk"3"
+        }| fdisk /dev/$disk
     fi 
     # reboot
 }
@@ -149,10 +165,10 @@ function runChroot() {
     cat $1 > /etc/sudoers
 
     mkdir /boot/EFI
-    if [[ $10 == 1 ]]; then
-        mount /dev/$11"p1" /boot/EFI
+    if [[ ${10} == 1 ]]; then
+        mount /dev/${11}"p1" /boot/EFI
     else
-        mount /dev/$11"1" /boot/EFI
+        mount /dev/${11}"1" /boot/EFI
     fi
 
     echo Y | pacman -Sy  base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
@@ -177,8 +193,8 @@ function runChroot() {
     locale-gen
 
     cat $4 > /etc/default/grub
-    if [[ $12 == "Y" ]]; then
-        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=$13:volgroup0 quiet" >> /etc/default/grub
+    if [[ ${12} == "Y" ]]; then
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=${13}:volgroup0 quiet" >> /etc/default/grub
     else
         echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> /etc/default/grub
     fi
