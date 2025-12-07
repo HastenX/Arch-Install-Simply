@@ -165,7 +165,7 @@ function runChroot() {
     user=0
     userPassword=0
 
-    cat $1 > /etc/sudoers
+    echo $1 > /etc/sudoers
 
     mkdir /boot/EFI
     if [[ ${10} == 1 ]]; then
@@ -173,35 +173,36 @@ function runChroot() {
     else
         mount /dev/${11}"1" /boot/EFI
     fi
-
-    echo Y | pacman -Syy  base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    echo Y | pacman -Syyu 
+    echo Y | pacman -Sy core
+    echo Y | pacman -Sy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     if [[ $6 == "g" ]]; then
-        echo Y | pacman -Syy gnome-desktop gdm
+        echo Y | pacman -Sy gnome-desktop gdm
     fi
     if [[ $6 == "p" ]]; then
-        echo Y | pacman -Syy plasma-desktop sddm
+        echo Y | pacman -Sy plasma-desktop sddm
     fi
     if [[ $6 == "h" ]]; then
-        echo Y | pacman -Syy hyprland
+        echo Y | pacman -Sy hyprland
     fi
     if [[ $6 != "g" && $6 != "p" && $6 != "h" ]]; then
         echo "None anwsers recieved, default to plasma:"
-        echo Y | pacman -Syy plasma-desktop sddm
+        echo Y | pacman -Sy plasma-desktop sddm
     fi
 
-    $2 > /etc/mkinitcpio.conf
+    echo $2 > /etc/mkinitcpio.conf
     mkinitcpio -p linux 
 
-    $3 > /etc/locale.gen
+    echo $3 > /etc/locale.gen
     locale-gen
 
-    cat $4 > /etc/default/grub
+    echo $4 > /etc/default/grub
     if [[ ${12} == "Y" ]]; then
         echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=${13}:volgroup0 quiet" >> /etc/default/grub
     else
         echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> /etc/default/grub
     fi
-    $5 >> /etc/default/grub
+    echo $5 >> /etc/default/grub
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
     cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
