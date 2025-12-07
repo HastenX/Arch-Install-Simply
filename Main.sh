@@ -138,11 +138,11 @@ function mountParts() {
 }
 
 function runChroot() {
-    echo "root:$9" | chpasswd
+    echo "root:$9" | chpasswd 
     rootPassword=0
 
-    useradd -m -g users -G wheel $7
-    echo "$7:$8" | chpasswd
+    useradd -m -g users -G wheel "$7"
+    echo "$7:$8" | chpasswd  
     user=0
     userPassword=0
 
