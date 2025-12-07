@@ -157,6 +157,12 @@ function mountParts() {
     else 
         mount /dev/$diskVar"2" /mnt/boot
     fi
+    mkdir -p /mnt/boot/efi
+    if [[ $isNvmVar == 1 ]]; then
+        mount /dev/$diskVar"p1" /mnt/boot/efi
+    else 
+        mount /dev/$diskVar"1" /mnt/boot/efi
+    fi
 }
 
 function runChroot() {
@@ -225,12 +231,12 @@ function runChroot() {
 
     echo "$1" > "/etc/sudoers"
 
-    mkdir "/boot/EFI"
-    if [[ "${10}" == 1 ]]; then
-        mount "/dev/"${11}"p1" "/boot/EFI"
-    else
-        mount "/dev/"${11}"1" "/boot/EFI"
-    fi
+    # mkdir "/boot/EFI"
+    # if [[ "${10}" == 1 ]]; then
+    #     mount "/dev/"${11}"p1" "/boot/EFI"
+    # else
+    #     mount "/dev/"${11}"1" "/boot/EFI"
+    # fi
     pacman -Syy --noconfirm grub kitty
     pacman -Syy --noconfirm git intel-media-drivers
     pacman -Syy --noconfirm mkinitcpio base-devel dosfstools 
