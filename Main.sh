@@ -44,14 +44,14 @@ function run() {
     export localeFile="$(cat txt/localeFile.txt)"
     export grubTopFile="$(cat txt/grub/grubTop.txt)"
     export grubBottomFile="$(cat txt/grub/grubBottom.txt)"
-    export desktopVar="$desktopVar"
-    export userVar="$userVar"
-    export userPasswordVar="$userPasswordVar"
-    export rootPasswordVar="$rootPasswordVar"
-    export isNvmVar="$isNvmVar"
-    export diskVar="$diskVar" 
-    export encryptionVar="$encryptionVar"
-    export uuidVar="$uuidVar"
+    export desktopVar
+    export userVar
+    export userPasswordVar
+    export rootPasswordVar
+    export isNvmVar
+    export diskVar
+    export encryptionVar
+    export uuidVar
 
     echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     read -p "Vars: " wait
@@ -65,13 +65,13 @@ function run() {
             echo "d" 
             echo "4" 
             echo "w"
-        } | fdisk /dev/$disk
+        } | fdisk /dev/$diskVar
     else 
         {
         echo "d" 
         echo "4"
         echo "w" 
-        }| fdisk /dev/$disk
+        }| fdisk /dev/$diskVar
     fi 
     # reboot
 }
@@ -91,13 +91,13 @@ function formatDisk() {
 
 function encrypt() {
     if [[ $isNvm == 1  ]]; then
-        uuid=$(blkid | grep $disk"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
-        cryptsetup luksFormat /dev/$disk"p3"
-        cryptsetup open --type luks /dev/$disk"p3"
+        uuid=$(blkid | grep $diskVar"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
+        cryptsetup luksFormat /dev/$diskVar"p3"
+        cryptsetup open --type luks /dev/$diskVar"p3"
     else
-        uuid=$(blkid | grep $disk"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
-        cryptsetup luksFormat /dev/$disk"3"
-        cryptsetup open --type luks /dev/$disk"3"
+        uuid=$(blkid | grep $diskVar"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
+        cryptsetup luksFormat /dev/$diskVar"3"
+        cryptsetup open --type luks /dev/$diskVar"3"
     fi
 }
 
@@ -108,14 +108,14 @@ function partitionThird() {
 
     else 
         if [[ $isNvm == 1 ]]; then
-            pvcreate -ff /dev/$disk"p3"
-            vgcreate volgroup0 /dev/$disk"p3"
+            pvcreate -ff /dev/$diskVar"p3"
+            vgcreate volgroup0 /dev/$diskVar"p3"
         else
-            pvcreate -ff /dev/$disk"3"
-            vgcreate volgroup0 /dev/$disk"3"
+            pvcreate -ff /dev/$diskVar"3"
+            vgcreate volgroup0 /dev/$diskVar"3"
         fi
     fi
-    echo "p" | fdisk /dev/$disk
+    echo "p" | fdisk /dev/$diskVar
     echo "**The program will not work if home + root > 3rd partition**"
     read -p "Enter root storage(only num in GB): " root
     read -p "Enter home storage(only num in GB): " home
@@ -125,11 +125,11 @@ function partitionThird() {
 
 function setDiskTypes() {
     if [[ $isNvm == 1 ]]; then
-        mkfs.fat -F32 /dev/$disk"p1"
-        mkfs.ext4 /dev/$disk"p2"
+        mkfs.fat -F32 /dev/$diskVar"p1"
+        mkfs.ext4 /dev/$diskVar"p2"
     else
-        mkfs.fat -F32 /dev/$disk"1"
-        mkfs.ext4 /dev/$disk"2"
+        mkfs.fat -F32 /dev/$diskVar"1"
+        mkfs.ext4 /dev/$diskVar"2"
     fi
     mkfs.ext4 /dev/volgroup0/lv_root
     mkfs.ext4 /dev/volgroup0/lv_home
@@ -150,9 +150,9 @@ function mountParts() {
     mount /dev/volgroup0/lv_root /mnt
     mount /dev/volgroup0/lv_home /mnt/home
     if [[ $isNvm == 1 ]]; then
-        mount /dev/$disk"p2" /mnt/boot
+        mount /dev/$diskVar"p2" /mnt/boot
     else 
-        mount /dev/$disk"2" /mnt/boot
+        mount /dev/$diskVar"2" /mnt/boot
     fi
 }
 
