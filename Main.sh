@@ -243,11 +243,11 @@ function runChroot() {
 
     echo "$4" > "/etc/default/grub"
     if [[ ${12} == "Y" ]]; then
-        echo "GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=${13}:volgroup0 quiet"" >> "/etc/default/grub"
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=${13}:volgroup0 quiet" >> "/etc/default/grub"
     else
-        echo "GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"" >> "/etc/default/grub"
+        echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> "/etc/default/grub"
     fi
-    echo "$5" >> ""/etc/default/grub""
+    echo "$5" >> "/etc/default/grub"
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
     cp "/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "/boot/grub/locale/en.mo"
