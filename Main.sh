@@ -196,7 +196,8 @@ function runChroot() {
         read -p "Wait: " w
         return 1
     fi
-    mount -t efivarfs none /sys/firmware/efi/efivars
+    # mkdir /sys/firmware/efi/efivars
+    # mount -t efivarfs none /sys/firmware/efi/efivars
     mkdir "/etc/storeRes"
     touch "/etc/storeRes/one"
     touch "/etc/storeRes/two"
@@ -277,7 +278,7 @@ function runChroot() {
     echo 'GRUB_PRELOAD_MODULES="part_gpt part_msdos"' >> "/etc/default/grub"
     echo "$5" >> "/etc/default/grub"
 
-    grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+    grub-install --target=x86_64-efi --bootloader-id=grub_uefi --efi-directory=/boot/EFI --recheck --removeable
     cp "/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "/boot/grub/locale/en.mo"
     grub-mkconfig -o "/boot/grub/grub.cfg"
 
