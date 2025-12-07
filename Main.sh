@@ -225,11 +225,11 @@ function runChroot() {
 
     echo "$1" > "/etc/sudoers"
 
-    mkdir "/mnt/boot/EFI"
+    mkdir "/boot/EFI"
     if [[ "${10}" == 1 ]]; then
-        mount "/dev/"${11}"p1" "/mnt/boot/EFI"
+        mount "/dev/"${11}"p1" "/boot/EFI"
     else
-        mount "/dev/"${11}"1" "/mnt/boot/EFI"
+        mount "/dev/"${11}"1" "/boot/EFI"
     fi
     pacman -Syy --noconfirm grub kitty
     pacman -Syy --noconfirm git intel-media-drivers
