@@ -60,8 +60,8 @@ function run() {
 
     # echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     # read -p "Vars: " wait
-
-    arch-chroot /mnt "$(declare -f runChroot); runChroot $(echo "$sudoersFile") $(echo "$mkinitcpioFile") $(echo "$localeFile") $(echo "$grubTopFile") $(echo "$grubBottomFile") $(echo "$desktopVar") $(echo "$userVar") $(echo "$userPasswordVar") $(echo "$rootPasswordVar") $(echo "$isNvmVar") $(echo "$diskVar") $(echo "$encryptionVar") $(echo "$uuidVar")"
+    # declare -f runChroot
+    arch-chroot /mnt runChroot $(echo "$sudoersFile") $(echo "$mkinitcpioFile") $(echo "$localeFile") $(echo "$grubTopFile") $(echo "$grubBottomFile") $(echo "$desktopVar") $(echo "$userVar") $(echo "$userPasswordVar") $(echo "$rootPasswordVar") $(echo "$isNvmVar") $(echo "$diskVar") $(echo "$encryptionVar") $(echo "$uuidVar")
 
     if [[ $isNvm == 1 ]]; then
         {
