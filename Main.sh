@@ -196,6 +196,7 @@ function runChroot() {
         read -p "Wait: " w
         return 1
     fi
+    mount -t efivarfs none /sys/firmware/efi/efivars
     mkdir "/etc/storeRes"
     touch "/etc/storeRes/one"
     touch "/etc/storeRes/two"
