@@ -44,14 +44,27 @@ function run() {
     export localeFile="$(cat txt/localeFile.txt)"
     export grubTopFile="$(cat txt/grub/grubTop.txt)"
     export grubBottomFile="$(cat txt/grub/grubBottom.txt)"
-    export desktopVar="$(echo '$desktop')"
-    export userVar="$(echo '$user')"
-    export userPasswordVar="$(echo '$userPassword')"
-    export rootPasswordVar="$(echo '$rootPassword')"
-    export isNvmVar="$(echo '$isNvm')"
-    export diskVar="$(echo '$disk')"
-    export encryptionVar="$(echo '$encryption')"
-    export uuidVar="$(echo '$uuid')"
+    export desktopVar="$desktop"
+    export userVar="$user"
+    export userPasswordVar="$userPassword"
+    export rootPasswordVar="$$rootPassword"
+    export isNvmVar="$isNvm"
+    export diskVar="$$disk"
+    export encryptionVar="$$encryption"
+    export uuidVar="$uuid"
+
+    echo "$sudoersFile"
+    read -p "sudo: " wait
+    echo "$mkinitcpioFile"
+    read -p "mk: " wait
+    echo "$localeFile"
+    read -p "locale: " wait
+    echo "$grubTopFile"
+    read -p "grub1: " wait
+    echo "$grubBottomFile"
+    read -p "grub2: " wait
+    echo "desktop:$desktopVar,user:$userVar,passwd:$userPasswordVar,rootpasswd:$rootPasswordVar,isNvm:$isNvmVar,disk:$diskVar,encryption:$encryptionVar,uuid:$uuidVar"
+    read -p "Vars: " wait
 
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoersFile' '$mkinitcpioFile' '$localeFile' '$grubTopFile' '$grubBottomFile' '$desktopVar' '$userVar' '$userPasswordVar' '$rootPasswordVar' '$isNvmVar' '$diskVar' '$encryptionVar' '$uuidVar'"
 
@@ -201,8 +214,8 @@ function runChroot() {
     fi
     pacman -Syy --noconfirm grub git intel-media-drivers
     pacman -Syy --noconfirm mkinitcpio base-devel dosfstools 
-    pacman -Syy --noconfirm efibootmgr mtools bash-completion
-    pacman -Syy --noconfirm networkmanager os-prober linux 
+    pacman -Syy --noconfirm efibootmgr mtools linux
+    pacman -Syy --noconfirm networkmanager os-prober bash-completion
     pacman -Syy --noconfirm linux-headers linux-firmware mesa 
     pacman -Syy --noconfirm ufw libva-mesa-driver lvm2
     if [[ $6 == "g" ]]; then
