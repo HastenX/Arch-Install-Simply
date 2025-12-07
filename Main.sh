@@ -174,20 +174,19 @@ function runChroot() {
         mount /dev/${11}"1" /boot/EFI
     fi
     echo Y | pacman -Syyu 
-    echo Y | pacman -Syy core
-    # echo Y | pacman -Syy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    echo Y | pacman -Syy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     if [[ $6 == "g" ]]; then
-        echo Y | pacman -Sy gnome-desktop gdm
+        echo Y | pacman -Syy gnome-desktop gdm
     fi
     if [[ $6 == "p" ]]; then
-        echo Y | pacman -Sy plasma-desktop sddm
+        echo Y | pacman -Syy plasma-desktop sddm
     fi
     if [[ $6 == "h" ]]; then
-        echo Y | pacman -Sy hyprland
+        echo Y | pacman -Syy hyprland
     fi
     if [[ $6 != "g" && $6 != "p" && $6 != "h" ]]; then
         echo "None anwsers recieved, default to plasma:"
-        echo Y | pacman -Sy plasma-desktop sddm
+        echo Y | pacman -Syy plasma-desktop sddm
     fi
 
     echo $2 > /etc/mkinitcpio.conf
