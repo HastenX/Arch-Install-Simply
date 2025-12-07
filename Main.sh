@@ -24,19 +24,19 @@ function run() {
 
     mountParts
 
-    {
-        echo ""
-        echo "Y"
-    } | pacstrap -i /mnt base sudo nano
-
-    genfstab -U -p /mnt >> /mnt/etc/fstab
-
     read -sp "Please enter the root password: " rootPassword
     echo ""
     read -p "Please enter your username: " user
     read -sp "Please enter $user's password: " userPassword
     echo ""
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
+
+    {
+        echo ""
+        echo "Y"
+    } | pacstrap -i /mnt base sudo nano
+
+    genfstab -U -p /mnt >> /mnt/etc/fstab
 
     export sudoers=$(<txt/sudoersFile.txt)
     export mkinitcpio=$(<txt/mkinitcpioFile.txt)
@@ -52,12 +52,9 @@ function run() {
     export encryption="$encryption"
     export uuid="$uuid"
 
-    echo "Values: $sudoers, $mkinitcpio, $locale, $grubTop, $grubBottom, $desktop, $user, $userPassword, $rootPassword, $isNvm, $disk, $encryption, $uuid"
-    read -p "Wait: " wait
-
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot '$sudoers' '$mkinitcpio' '$locale' '$grubTop' '$grubBottom' '$desktop' '$user' '$userPassword' '$rootPassword' '$isNvm' '$disk' '$encryption' '$uuid'"
 
-    umount -a
+    # umount -a
 
     if [[ $isNvm == 1 ]]; then
         {
@@ -72,7 +69,7 @@ function run() {
         echo "w" 
         }| fdisk /dev/$disk
     fi 
-    reboot
+    # reboot
 }
 
 function formatDisk() {
