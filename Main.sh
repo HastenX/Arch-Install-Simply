@@ -57,19 +57,19 @@ function run() {
     # read -p "Vars: " wait
 
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot \
-    $(printf '%q' "$sudoersFile") \
-    $(printf '%q' "$mkinitcpioFile") \
-    $(printf '%q' "$localeFile") \
-    $(printf '%q' "$grubTopFile") \
-    $(printf '%q' "$grubBottomFile") \
-    $(printf '%q' "$desktopVar") \
-    $(printf '%q' "$userVar") \
-    $(printf '%q' "$userPasswordVar") \
-    $(printf '%q' "$rootPasswordVar") \
-    $(printf '%q' "$isNvmVar") \
-    $(printf '%q' "$diskVar") \
-    $(printf '%q' "$encryptionVar") \
-    $(printf '%q' "$uuidVar")"
+    "$(printf '%q' "$sudoersFile")" \
+    "$(printf '%q' "$mkinitcpioFile")" \
+    "$(printf '%q' "$localeFile")" \
+    "$(printf '%q' "$grubTopFile")" \
+    "$(printf '%q' "$grubBottomFile")" \
+    "$(printf '%q' "$desktopVar")" \
+    "$(printf '%q' "$userVar")" \
+    "$(printf '%q' "$userPasswordVar")" \
+    "$(printf '%q' "$rootPasswordVar")" \
+    "$(printf '%q' "$isNvmVar")" \
+    "$(printf '%q' "$diskVar")" \
+    "$(printf '%q' "$encryptionVar")" \
+    "$(printf '%q' "$uuidVar")""
 
     if [[ $isNvm == 1 ]]; then
         {
