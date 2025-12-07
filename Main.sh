@@ -36,7 +36,7 @@ function run() {
     read -sp "Please enter $user's password: " userPassword
     read -p "Please enter the desktop you want:(g=gnome,p=plasma,h=hyprland) " desktop
 
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot $(cat txt/sudoersFile.txt) $(cat txt/mkinitcpioFile.txt) $(cat txt/localeFile.txt)" $(cat txt/grub/grubTop.txt)" $(cat txt/grub/grubBottom.txt) $desktop $user $userPassword $rootPassword $isNvm $disk $encryption $uuid"
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot $(cat txt/sudoersFile.txt) $(cat txt/mkinitcpioFile.txt) $(cat txt/localeFile.txt) $(cat txt/grub/grubTop.txt) $(cat txt/grub/grubBottom.txt) $desktop $user $userPassword $rootPassword $isNvm $disk $encryption $uuid"
 
     umount -a
 
@@ -138,7 +138,6 @@ function mountParts() {
 }
 
 function runChroot() {
-    read -p "$9,$7:$8" wait:
     echo "root:$9" | chpasswd 
     rootPassword=0
 
