@@ -174,8 +174,8 @@ function runChroot() {
         mount /dev/${11}"1" /boot/EFI
     fi
     echo Y | pacman -Syyu 
-    echo Y | pacman -Sy core
-    echo Y | pacman -Sy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    echo Y | pacman -Syy core
+    # echo Y | pacman -Syy base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     if [[ $6 == "g" ]]; then
         echo Y | pacman -Sy gnome-desktop gdm
     fi
