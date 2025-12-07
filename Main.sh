@@ -8,7 +8,7 @@ function run() {
         isNvmVar=0
     fi
 
-    if [[ $isNvmVar == 1]]; then
+    if [[ $isNvmVar == 1 ]]; then
         uuid=$(blkid | grep $diskVar"p3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
     else
         uuid=$(blkid | grep $diskVar"3" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' )
@@ -61,7 +61,7 @@ function run() {
     # echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     # read -p "Vars: " wait
 
-    arch-chroot /mnt "$(declare -f runChroot); runChroot" 
+    arch-chroot /mnt "$(declare -f runChroot); runChroot 
     "$sudoersFile"
     "$mkinitcpioFile"
     "$localeFile"
@@ -74,7 +74,7 @@ function run() {
     "$isNvmVar"
     "$diskVar"
     "$encryptionVar"
-    "$uuidVar"
+    "$uuidVar""
 
     if [[ $isNvm == 1 ]]; then
         {
