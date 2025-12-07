@@ -138,6 +138,7 @@ function mountParts() {
 }
 
 function runChroot() {
+    read -p "$9,$7:$8"
     echo "root:$9" | chpasswd 
     rootPassword=0
 
