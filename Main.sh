@@ -171,7 +171,7 @@ function runChroot() {
         mount /dev/${11}"1" /boot/EFI
     fi
     
-    pacman -Syyu --noconfirmpacman -Syy --noconfirm base-devel dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
+    pacman -Syyu --noconfirmpacman -Syy --noconfirm base-devel mkinitcpio dosfstools grub git efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux linux-headers linux-firmware mesa ufw libva-mesa-driver intel-media-drivers
     if [[ $6 == "g" ]]; then
         pacman -Syy --noconfirm gnome-desktop gdm
     fi
@@ -186,19 +186,19 @@ function runChroot() {
         pacman -Syy --noconfirm plasma-desktop sddm
     fi
 
-    echo $2 > /etc/mkinitcpio.conf
+    echo "$2" > /etc/mkinitcpio.conf
     mkinitcpio -p linux 
 
-    echo $3 > /etc/locale.gen
+    echo "$3" > /etc/locale.gen
     locale-gen
 
-    echo $4 > /etc/default/grub
+    echo "$4" > /etc/default/grub
     if [[ ${12} == "Y" ]]; then
         echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=UUID=${13}:volgroup0 quiet" >> /etc/default/grub
     else
         echo GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" >> /etc/default/grub
     fi
-    echo $5 >> /etc/default/grub
+    echo "$5" >> /etc/default/grub
 
     grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
     cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
