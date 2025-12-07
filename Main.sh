@@ -198,9 +198,12 @@ function runChroot() {
     else
         mount /dev/${11}"1" /boot/EFI
     fi
-    pacman -Syy --noconfirm mkinitcpio base-devel dosfstools grub git intel-media-drivers
-    pacman -Syy --noconfirm efibootmgr lvm2 mtools bash-completion networkmanager os-prober linux 
-    pacman -Syy --noconfirm linux-headers linux-firmware mesa ufw libva-mesa-driver
+    pacman -Syy --noconfirm grub git intel-media-drivers
+    pacman -Syy --noconfirm mkinitcpio base-devel dosfstools 
+    pacman -Syy --noconfirm efibootmgr mtools bash-completion
+    pacman -Syy --noconfirm networkmanager os-prober linux 
+    pacman -Syy --noconfirm linux-headers linux-firmware mesa 
+    pacman -Syy --noconfirm ufw libva-mesa-driver lvm2
     if [[ $6 == "g" ]]; then
         pacman -Syy --noconfirm gnome-desktop gdm
     fi
