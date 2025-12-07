@@ -62,7 +62,7 @@ function run() {
     # read -p "Vars: " wait
 
     # arch-chroot /mnt "$(declare -f runChroot); runChroot $(echo "$sudoersFile") $(echo "$mkinitcpioFile") $(echo "$localeFile") $(echo "$grubTopFile") $(echo "$grubBottomFile") $(echo "$desktopVar") $(echo "$userVar") $(echo "$userPasswordVar") $(echo "$rootPasswordVar") $(echo "$isNvmVar") $(echo "$diskVar") $(echo "$encryptionVar") $(echo "$uuidVar")"
-    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot \"$sudoersFile\" \"$mkinitcpioFile\" \"$localeFile\" \"$grubTopFile\" \"$grubBottomFile\" \"$desktopVar\" \"$userVar\" \"$userPasswordVar\" \"$rootPasswordVar\" \"$isNvmVar\" \"$diskVar\" \"$encryptionVar\" \"$uuidVar\""
+    arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot "$sudoersFile" "$mkinitcpioFile" "$localeFile" "$grubTopFile" "$grubBottomFile" "$desktopVar" "$userVar" "$userPasswordVar" "$rootPasswordVar" "$isNvmVar" "$diskVar" "$encryptionVar" "$uuidVar""
 
     if [[ $isNvm == 1 ]]; then
         {
@@ -159,6 +159,10 @@ function mountParts() {
 }
 
 function runChroot() {
+    if [ "$#" -lt 13 ]; then
+        echo "Error: Minimum of 13 parameters required."
+        return 1
+    fi
     mkdir "/etc/storeRes"
     touch "/etc/storeRes/one"
     touch "/etc/storeRes/two"
@@ -200,7 +204,8 @@ function runChroot() {
     else
         mount "/dev/"${11}"1" "/boot/EFI"
     fi
-    pacman -Syy --noconfirm grub git intel-media-drivers
+    pacman -Syy --noconfirm grub
+    pacman -Syy --noconfirm git intel-media-drivers
     pacman -Syy --noconfirm mkinitcpio base-devel dosfstools 
     pacman -Syy --noconfirm efibootmgr mtools linux
     pacman -Syy --noconfirm networkmanager os-prober bash-completion
