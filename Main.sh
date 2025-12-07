@@ -61,7 +61,7 @@ function run() {
     # echo "isNvm:$isNvmVar,disk:$diskVar,uuid:$uuidVar"
     # read -p "Vars: " wait
 
-    arch-chroot /mnt ./RunChroot.sh "$sudoersFile" "$mkinitcpioFile" "$localeFile" "$grubTopFile" "$grubBottomFile" "$desktopVar" "$userVar" "$userPasswordVar" "$rootPasswordVar" "$isNvmVar" "$diskVar" "$encryptionVar" "$uuidVar"
+    arch-chroot /mnt "$(declare -f runChroot); runChroot "$sudoersFile" "$mkinitcpioFile" "$localeFile" "$grubTopFile" "$grubBottomFile" "$desktopVar" "$userVar" "$userPasswordVar" "$rootPasswordVar" "$isNvmVar" "$diskVar" "$encryptionVar" "$uuidVar""
 
     if [[ $isNvm == 1 ]]; then
         {
