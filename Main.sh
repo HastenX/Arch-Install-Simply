@@ -145,7 +145,7 @@ function mountParts() {
         mountParts
         return
     fi
-        if [ ! -d /mnt/boot ]; then
+    if [ ! -d /mnt/boot ]; then
         mkdir /mnt/boot
         mountParts
         return
@@ -159,6 +159,11 @@ function mountParts() {
         mount /dev/$diskVar"2" /mnt/boot
     fi
     mkdir -p /mnt/boot/efi
+    if [ ! -d /mnt/boot/efi ]; then
+        mkdir /mnt/boot/efi
+        mountParts
+        return
+    fi
     if [[ $isNvmVar == 1 ]]; then
         mount /dev/$diskVar"p1" /mnt/boot/efi
     else 
@@ -272,16 +277,16 @@ function runChroot() {
 
     echo "$4" > "/etc/default/grub"
     if [[ ${12} == "Y" ]]; then
-        echo 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=${13}:volgroup0 quiet"' >> "/etc/default/grub"
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="efi=runtime loglevel=3 cryptdevice=${13}:volgroup0 quiet"' >> "/etc/default/grub"
     else
-        echo 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"' >> "/etc/default/grub"
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="efi=runtime loglevel=3 quiet"' >> "/etc/default/grub"
     fi
     echo 'GRUB_PRELOAD_MODULES="part_gpt part_msdos"' >> "/etc/default/grub"
     echo "$5" >> "/etc/default/grub"
 
     # grub-install --target=x86_64-efi --bootloader-id=grub_uefi --efi-directory=/boot/EFI --recheck
     # grub-install --target=x86_64-efi --bootloader-id=grub_uefi --efi-directory=/boot/EFI --recheck --removable
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable
     cp "/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "/boot/grub/locale/en.mo"
     grub-mkconfig -o "/boot/grub/grub.cfg"
 
