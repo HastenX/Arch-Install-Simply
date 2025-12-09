@@ -66,19 +66,19 @@ function run() {
     # arch-chroot /mnt "$(declare -f runChroot); runChroot $(echo "$sudoersFile") $(echo "$mkinitcpioFile") $(echo "$localeFile") $(echo "$grubTopFile") $(echo "$grubBottomFile") $(echo "$desktopVar") $(echo "$userVar") $(echo "$userPasswordVar") $(echo "$rootPasswordVar") $(echo "$isNvmVar") $(echo "$diskVar") $(echo "$encryptionVar") $(echo "$uuidVar")"
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot \"$sudoersFile\" \"$mkinitcpioFile\" \"$localeFile\" \"$grubTopFile\" \"$grubBottomFile\" \"$desktopVar\" \"$userVar\" \"$userPasswordVar\" \"$rootPasswordVar\" \"$isNvmVar\" \"$diskVar\" \"$encryptionVar\" \"$uuidVar\""
 
-    # if [[ $isNvm == 1 ]]; then
-    #     {
-    #         echo "d" 
-    #         echo "4" 
-    #         echo "w"
-    #     } | fdisk /dev/$diskVar
-    # else 
-    #     {
-    #     echo "d" 
-    #     echo "4"
-    #     echo "w" 
-    #     }| fdisk /dev/$diskVar
-    # fi 
+    if [[ $isNvm == 1 ]]; then
+        {
+            echo "d" 
+            echo "4" 
+            echo "w"
+        } | fdisk /dev/$diskVar
+    else 
+        {
+        echo "d" 
+        echo "4"
+        echo "w" 
+        }| fdisk /dev/$diskVar
+    fi 
     umount -a
     reboot
 }
