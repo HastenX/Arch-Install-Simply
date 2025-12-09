@@ -66,20 +66,21 @@ function run() {
     # arch-chroot /mnt "$(declare -f runChroot); runChroot $(echo "$sudoersFile") $(echo "$mkinitcpioFile") $(echo "$localeFile") $(echo "$grubTopFile") $(echo "$grubBottomFile") $(echo "$desktopVar") $(echo "$userVar") $(echo "$userPasswordVar") $(echo "$rootPasswordVar") $(echo "$isNvmVar") $(echo "$diskVar") $(echo "$encryptionVar") $(echo "$uuidVar")"
     arch-chroot /mnt bash -c "$(declare -f runChroot); runChroot \"$sudoersFile\" \"$mkinitcpioFile\" \"$localeFile\" \"$grubTopFile\" \"$grubBottomFile\" \"$desktopVar\" \"$userVar\" \"$userPasswordVar\" \"$rootPasswordVar\" \"$isNvmVar\" \"$diskVar\" \"$encryptionVar\" \"$uuidVar\""
 
-    if [[ $isNvm == 1 ]]; then
-        {
-            echo "d" 
-            echo "4" 
-            echo "w"
-        } | fdisk /dev/$diskVar
-    else 
-        {
-        echo "d" 
-        echo "4"
-        echo "w" 
-        }| fdisk /dev/$diskVar
-    fi 
-    # reboot
+    # if [[ $isNvm == 1 ]]; then
+    #     {
+    #         echo "d" 
+    #         echo "4" 
+    #         echo "w"
+    #     } | fdisk /dev/$diskVar
+    # else 
+    #     {
+    #     echo "d" 
+    #     echo "4"
+    #     echo "w" 
+    #     }| fdisk /dev/$diskVar
+    # fi 
+    umount -a
+    reboot
 }
 
 function formatDisk() {
@@ -232,11 +233,15 @@ function runChroot() {
     echo "${12}" > "/etc/storeRes/twelve" #nothing
     echo "${13}" > "/etc/storeRes/thirteen" #nothing
 
+    mkdir /etc/Saved_Defaults
+
     echo "root:$9" | chpasswd 
 
     useradd -m -g users -G wheel "$7"
     echo "$7:$8" | chpasswd  
 
+    touch /etc/Saved_Defaults/sudoers
+    cat "/etc/sudoers" > /etc/Saved_Defaults/sudoers
     echo "$1" > "/etc/sudoers"
 
     # mkdir "/boot/EFI"
@@ -268,13 +273,18 @@ function runChroot() {
         pacman -Syy --noconfirm plasma-desktop sddm
         systemctl enable sddm
     fi
-
+    touch /etc/Saved_Defaults/mkinitcpio.conf
+    cat "/etc/mkinitcpio.conf" > /etc/Saved_Defaults/mkinitcpio.conf
     echo "$2" > "/etc/mkinitcpio.conf"
     mkinitcpio -p linux 
 
+    touch /etc/Saved_Defaults/locale.gen
+    cat "/etc/mkinitcpio.conf" > /etc/Saved_Defaults/locale.gen
     echo "$3" > "/etc/locale.gen"
     locale-gen
 
+    touch /etc/Saved_Defaults/grub
+    cat "/etc/default/grub" > /etc/Saved_Defaults/grub
     echo "$4" > "/etc/default/grub"
     if [[ ${12} == "Y" ]]; then
         echo 'GRUB_CMDLINE_LINUX_DEFAULT="efi=runtime loglevel=3 cryptdevice=${13}:volgroup0 quiet"' >> "/etc/default/grub"
