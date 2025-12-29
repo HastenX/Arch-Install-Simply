@@ -8,7 +8,7 @@ function run() {
     echo "-------------------"
     
     read -p "Enter test mode(y/n)? " test
-    setUserInput
+    # setUserInput
     install_sh
 }
 run
