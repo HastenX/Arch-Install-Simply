@@ -1,24 +1,26 @@
 source src/UserBuild.sh
 function setUserInput() {
     # echo "File controller: ${UserBuild[grubDefaultPkg]}"
-    # ensureMachine
+    ensureMachine
     ensureDisk
     ensureStorage
-    # ensureUsername
-    # ensurePasswordData
-    # ensureEncryption
-    # ensureUI
-
-    # Testing data:
-    for key in "${!UserBuild[@]}"
-    do
-        echo "'$key' : '${UserBuild[$key]}'"
-        read -p "Wait: " w
-    done
+    ensureUsername
+    ensurePasswordData
+    ensureEncryption
+    ensureUI
 
     # Updates after user data is retrieved
     updateMkinitcpio
     updateDiskVar
+    updateHardware
+    updateModprobePkg
+
+    # Testing data:
+    # for key in "${!UserBuild[@]}"
+    # do
+    #     echo "'$key' : '${UserBuild[$key]}'"
+    #     read -p "Wait: " w
+    # done
 }
 
 function ensureMachine() {
@@ -85,7 +87,7 @@ function ensureStorage() {
         rootStore=$((50))
     fi
     if [[ $rootStore -lt 10 ]]; then
-        rootStore=$((50))
+        rootStore=$((10))
     fi
     homeStore=$(($storage-$rootStore))
     echo "Avaliable Storage in selected Drive (${UserBuild[disk]}): " $storage"GB"
@@ -102,15 +104,14 @@ function ensureStorage() {
 # THE STORAGE INPUTITOR 3000. I will use is verbosity to scare away
 # all the junior programmers out of the Tri-state area.
 function theStorageInputitor3000() {
-    if [[ -z $homeStore ]]; then
+    if [[ -z $homeVerify ]]; then
         homeVerify=$homeStore
     fi
 
-    if [[ -z $rootStore ]]; then
+    if [[ -z $rootVerify ]]; then
         rootVerify=$rootStore
     fi
-
-    if [[ ! $rootVerify =~ ^[0-9]+$  || ! $homeVerify =~ ^[0-9]+$ ]]; then
+    if [[ ! ( $rootVerify =~ ^[0-9]+$ || -z $rootVerify ) || ! ( $homeVerify =~ ^[0-9]+$ || -z $homeVerify ) ]]; then
         echo "Error: numeric inputs are required"
         ensureStorage
     fi
@@ -220,7 +221,6 @@ function ensureDesktop() {
             setDesktop "hyprland"
             ;;
         "n")
-            setDesktop "none"
             ;;
         *)
             echo "Error: please enter a desktop letter"
@@ -240,7 +240,6 @@ function ensureDisplayManager() {
             setDisplsyManager "sddm"
             ;;
         "n")
-            setDisplsyManager "none"
             ;;
         *)
             echo "Error: please enter a display letter"
@@ -272,13 +271,13 @@ function ensureBrowser() {
 }
 
 function ensureConsole() {
-    read -p "Please enter the wanted console (kitty=k,gnome-shell=g,terminator=t): " desktop
+    read -p "Please enter the wanted console (kitty=k,gome-terminal=g,terminator=t): " desktop
     case "$desktop" in 
         "k")
             setConsole "kitty"
             ;;
         "g")
-            setConsole "gnome-shell"
+            setConsole "gnome-terminal"
             ;;
         "t")
             setConsole "terminator"
@@ -303,7 +302,6 @@ function ensureFileManager() {
             setFileManager "nautilus"
             ;;
         "no")
-            setFileManager "none"
             ;;
         *)
             echo "Error: please enter a file manager letter"

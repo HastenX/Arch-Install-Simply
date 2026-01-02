@@ -1,53 +1,69 @@
 source src/UserBuild.sh
 function setUserInput() {
     # echo "File controller: ${UserBuild[grubDefaultPkg]}"
-    ensureMachine
+    # ensureMachine
     ensureDisk
+    ensureStorage
     ensureUsername
     ensurePasswordData
     ensureEncryption
     ensureUI
 
-    # Testing data:
-    for key in "${!UserBuild[@]}"
-    do
-        echo "'$key' : '${UserBuild[$key]}'"
-        read -p "Wait: " w
-    done
-
     # Updates after user data is retrieved
     updateMkinitcpio
-    
+    updateDiskVar
+    updateHardware
+    updateModprobePkg
+
+    # Testing data:
+    # for key in "${!UserBuild[@]}"
+    # do
+    #     echo "'$key' : '${UserBuild[$key]}'"
+    #     read -p "Wait: " w
+    # done
 }
 
-function ensureMachine() {
+# function ensureMachine() {
+#     echo "--------------------------------------------------------------"
+#     echo "Ensure Machine Type:"
+#     read -p "Please enter the environment you're installing this in:(u=usb,v=virtual,s=ssd/drive) " machineType
+
+#     case $machineType in
+#         "u")
+#             setMachineType "usb"
+#             ;;
+#         "v")
+#             setMachineType "virtual"
+#             ;;
+#         "s")
+#             setMachineType "ssd"
+#             ;;
+#         *)
+#             echo "Error: please enter only u, v or s"
+#             ensureMachine
+#             return
+#             ;;
+#     esac
+
+#     echo "Machine: ${UserBuild[machineType]}"
+#     read -p "Are you sure this is the correct machine type? (YES/n): " verify
+#     if [[ $verify != "YES" ]]; then
+#         ensureMachine
+#         return
+#     fi
+# }
+
+function ensureMachineName() {
     echo "--------------------------------------------------------------"
-    echo "Ensure Machine Type:"
-    read -p "Please enter the environment you're installing this in:(u=usb,v=virtual,s=ssd/drive) " machineType
-
-    case $machineType in
-        "u")
-            setMachineType "usb"
-            ;;
-        "v")
-            setMachineType "virtual"
-            ;;
-        "s")
-            setMachineType "ssd"
-            ;;
-        *)
-            echo "Error: please enter only u, v or s"
-            ensureMachine
-            return
-            ;;
-    esac
-
-    echo "Machine: ${UserBuild[machineType]}"
-    read -p "Are you sure this is the correct machine type? (YES/n): " verify
-    if [[ $verify != "YES" ]]; then
-        ensureMachine
-        return
+    echo "Ensure Machine Name:"
+    read -p "Please enter your machine name:" machine
+    if [[ $machine != "" ]]; then
+        UserBuild[machineName]=$machine
+    else
+        echo "Error: Invalid name"
+        ensureMachineName
     fi
+
 }
 
 function ensureDisk() {
@@ -56,7 +72,7 @@ function ensureDisk() {
     lsblk
     read -p "Please enter the hard drive you would like to format: " disk
     setDisk $disk
-    if [[ $(lsblk | grep -i ${UserBuild[disk]}) == "" || $(partprobe -d -s /dev/${UserBuild[disk]} | grep "gpt") == "" ]]; then
+    if [[ $(lsblk | grep -i ${UserBuild[disk]}) == "" ]]; then
         echo "Disk does not exist or doesn't have gpt format"
         ensureDisk
         return
@@ -70,6 +86,54 @@ function ensureDisk() {
     fi
 }
 
+function ensureStorage() {
+    echo "--------------------------------------------------------------"
+    echo "Ensure LVM Storage: "
+    storage=$(lsblk /dev/${UserBuild[disk]} | sed '2!d' | grep -o '[0-9]*.[0-9]*G' | sed 's/G//' | sed 's/\.[0-9]//')
+    storage=$(($storage-3))
+    if [[ $storage == 0 || -z $storage ]]; then 
+        echo "Error: Uh oh, you forgot how to code and forgot to get storage! (ensureStorage)"
+        exit 1
+    fi
+    rootStore=$(($storage*15/100))
+    if [[ $rootStore -gt 50 ]]; then
+        rootStore=$((50))
+    fi
+    if [[ $rootStore -lt 10 ]]; then
+        rootStore=$((10))
+    fi
+    homeStore=$(($storage-$rootStore))
+    echo "Avaliable Storage in selected Drive (${UserBuild[disk]}): " $storage"GB"
+    read -p "Please enter the amount of storage you would like for your root partition(GB,default=$rootStore): " rootVerify
+    read -p "Please enter the amount of storage you would like for your home partition(GB,default=$homeStore): " homeVerify
+    theStorageInputitor3000
+    UserBuild[homeSize]=$homeVerify
+    UserBuild[rootSize]=$rootVerify
+}
+
+# Ah Perry the Platypus, how completely unexpected of you to arrive...
+# Did I say unexpected? I meant completely expected!
+# While your here, I will reveal the most verbose invention yet...
+# THE STORAGE INPUTITOR 3000. I will use is verbosity to scare away
+# all the junior programmers out of the Tri-state area.
+function theStorageInputitor3000() {
+    if [[ -z $homeVerify ]]; then
+        homeVerify=$homeStore
+    fi
+
+    if [[ -z $rootVerify ]]; then
+        rootVerify=$rootStore
+    fi
+    if [[ ! ( $rootVerify =~ ^[0-9]+$ || -z $rootVerify ) || ! ( $homeVerify =~ ^[0-9]+$ || -z $homeVerify ) ]]; then
+        echo "Error: numeric inputs are required"
+        ensureStorage
+    fi
+
+    if [[ $(($rootVerify+$homeVerify)) > $storage ]]; then
+        echo "Error: the size of custom partitions are larger than the avaliable storage"
+        ensureStorage
+    fi
+}
 
 
 function ensureUsername() {
@@ -125,10 +189,9 @@ function ensureEncryption() {
         setEncryption "y"
         insertMkinitcpioHOOKS "encrypt"
         read -p "Would you like to use crypttab? (y/N): " verify
-        if [[ $verify != "y" ]]; then
-            keyTemplate
-            setPersonalKey ${UserBuild[personalKey]}
-        fi
+        UserBuild[doCrypttab]=$verify
+        keyTemplate
+        setPersonalKey ${UserBuild[personalKey]}
     fi
     buildMkinitcpioFILES
 }
@@ -158,19 +221,18 @@ function ensureUI() {
 } 
 
 function ensureDesktop() {
-    read -p "Please enter the wanted desktop (gnome=g,kde=k,hyprland=h,none=n): " desktop
+    read -p "Please enter the wanted desktop (gnome=g,plasma=k,hyprland=h,none=n): " desktop
     case "$desktop" in 
         "g")
             setDesktop "gnome"
             ;;
         "k")
-            setDesktop "kde"
+            setDesktop "plasma"
             ;;
         "h")
             setDesktop "hyprland"
             ;;
         "n")
-            setDesktop "none"
             ;;
         *)
             echo "Error: please enter a desktop letter"
@@ -185,12 +247,13 @@ function ensureDisplayManager() {
     case "$displayManager" in 
         "g")
             setDisplsyManager "gdm"
+            addSystemctlPkg "gdm"
             ;;
         "s")
             setDisplsyManager "sddm"
+            addSystemctlPkg "sddm"
             ;;
         "n")
-            setDisplsyManager "none"
             ;;
         *)
             echo "Error: please enter a display letter"
@@ -222,16 +285,21 @@ function ensureBrowser() {
 }
 
 function ensureConsole() {
-    read -p "Please enter the wanted console (kitty=k,gnome-shell=g,terminator=t): " desktop
+    read -p "Please enter the wanted console (kitty=ki,gnome-terminal=g,terminator=t,konsole=ko,none=n): " desktop
     case "$desktop" in 
-        "k")
+        "ki")
+            setConsole "kitty"
+            ;;
+        "ko")
             setConsole "kitty"
             ;;
         "g")
-            setConsole "gnome-shell"
+            setConsole "gnome-terminal"
             ;;
         "t")
             setConsole "terminator"
+            ;;
+        "n")
             ;;
         *)
             echo "Error: please enter a console letter"
@@ -253,11 +321,22 @@ function ensureFileManager() {
             setFileManager "nautilus"
             ;;
         "no")
-            setFileManager "none"
             ;;
         *)
             echo "Error: please enter a file manager letter"
             ensureFileManager
             ;;
     esac
+}
+
+function updateDiskVar() {
+    if [[ ${UserBuild[diskType]} == "sda" ]]; then
+        UserBuild[efiPartition]=${UserBuild[disk]}"1"
+        UserBuild[bootPartition]=${UserBuild[disk]}"2"
+        UserBuild[lvmPartition]=${UserBuild[disk]}"3"
+    else
+        UserBuild[efiPartition]=${UserBuild[disk]}"p1"
+        UserBuild[bootPartition]=${UserBuild[disk]}"p2"
+        UserBuild[lvmPartition]=${UserBuild[disk]}"p3"
+    fi
 }

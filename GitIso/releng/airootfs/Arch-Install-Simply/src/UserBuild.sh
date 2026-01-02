@@ -1,5 +1,5 @@
 #TODO: convert to hashmap with declare -A Userbuild = (...)
-declare -A UserBuild
+declare -g -A UserBuild
 # Userdata
 UserBuild[username]="-1" 
 UserBuild[userPasswd]="-1" 
@@ -7,14 +7,16 @@ UserBuild[rootname]="root"
 UserBuild[rootPasswd]="-1"
 # Pkg
 pacstrapPackages=""base" "nano""
-pacmanPackages=""sudo" "base-devel" "mesa" "grub" "git" "mkinitcpio" "base-devel" "dosfstools" "efibootmgr" "mtools" "linux" "networkmanager" "os-prober" "bash-completion" "linux-headers"" 
+pacmanPackages=""lvm2" "sudo" "ufw" "mkinitcpio" "base-devel" "mesa" "grub" "git" "base-devel" "dosfstools" "efibootmgr" "mtools" "linux" "networkmanager" "os-prober" "bash-completion" "linux-headers"" 
 yayPkg=""""
+systemctlPackages=""NetworkManager" "ufw""
 
 modprobePackages=""efivarfs" "dm_mod""
 
 UserBuild[pacstrapPkg]="$pacstrapPackages"  
 UserBuild[pacmanPkg]="$pacmanPackages"
 UserBuild[modprobePkg]="$modprobePackages"
+UserBuild[systemctlPkg]="$systemctlPackages"
 
 mkinitcpioHooks=""base" "udev" "autodetect" "microcode" "modconf" "kms" "keyboard" "keymap" "consolefont" "block" "lvm2" "filesystems" "fsck""
 mkinitcpioFiles=""
@@ -31,11 +33,15 @@ UserBuild[machineType]="-1"
 
 UserBuild[encryption]="-1"
 UserBuild[personalKey]="-1"
+UserBuild[doCrypttab]="-1"
+
+UserBuild[efiPartition]="-1"
+UserBuild[bootPartition]="-1"
+UserBuild[lvmPartition]="-1"
+
 UserBuild[lvmUUID]="-1"
 UserBuild[homeSize]=-1
 UserBuild[rootSize]=-1
-
-UserBuild[fileManager]="-1"
 
 # UI
 UserBuild[desktop]="-1"
@@ -47,6 +53,7 @@ UserBuild[fileManager]="-1"
 #Files
 UserBuild[locale_file]="$(cat bin/localeFile.bin)"
 UserBuild[sudoers_file]="$(cat bin/sudoersFile.bin)"
+UserBuild[sudoers_temp_file]="ALL ALL=(ALL:ALL) NOPASSWD: ALL"
 
 UserBuild[grub_file]="$(cat bin/grubFile.bin)"
 UserBuild[grubLock]=0
@@ -70,13 +77,11 @@ setRootPasswd() {
     UserBuild[rootPasswd]="$1"
 }
 
-popUserPassword() {
-    echo ${UserBuild[userPasswd]}
+removeUserPassword() {
     UserBuild[userPasswd]="-1"
 }
 
-popRootPassword() {
-    echo ${UserBuild[rootPasswd]}
+removeRootPassword() {
     UserBuild[rootPasswd]="-1"
 }
 
@@ -99,30 +104,40 @@ addYayPkg() {
     done
 }
 
+addSystemctlPkg() {
+    for arg in "$@"; do
+        UserBuild[systemctlPkg]+=" $arg"
+    done
+}
+
 # Pacman controlled packages:
 setDisplsyManager() {
     UserBuild[displsyManager]="$1"
-    addPacmanPkg
+    addPacmanPkg "${UserBuild[displsyManager]}"
     # TODO: ADD CONDITIONSadd "${UserBuild[displsy_manager]}"
 }
 
 setDesktop() {
     UserBuild[desktop]="$1"
+    addPacmanPkg "${UserBuild[desktop]}"
     # TODO: ADD CONDITIONSadd "${UserBuild[desktop]}"
 }
 
 setConsole() {
     UserBuild[console]="$1"
+    addPacmanPkg "${UserBuild[console]}"
     # TODO: ADD CONDITIONSadd "${UserBuild[console]}"
 }
 
 setBrowser() {
     UserBuild[browser]="$1"
+    addYayPkg "${UserBuild[browser]}"
     # TODO: ADD CONDITIONSadd "${UserBuild[browser]}"
 }
 
 setFileManager() {
     UserBuild[fileManager]="$1"
+    addPacmanPkg "${UserBuild[fileManager]}"
 }
 
 updateHardware() {
@@ -146,7 +161,7 @@ insertModprobePkg() {
 
 updateModprobePkg() {
     if [[ ${UserBuild[encryption]} != "-1" ]]; then
-        insertModprobePkg "dm_encrypt"
+        insertModprobePkg "dm_crypt"
     fi
 }
 
@@ -161,8 +176,9 @@ insertMkinitcpioHOOKS() {
     temp2=${array[-2]}
     array[-2]="$1"
     array[-1]="$temp2"
-    array+=$temp1
-    UserBuild[mkinitcpioHOOKS]="${array[@]}"
+    result=${array[@]}
+    result+=" "$temp1""
+    UserBuild[mkinitcpioHOOKS]="$result"
 }
 
 insertMkinitcpioFILES() {
@@ -192,13 +208,14 @@ insertGrubDefaultPkg() {
     read -a array <<< ${UserBuild[grubDefaultPkg]}
     temp=${array[-1]}
     array[-1]="$1"
-    array+=$temp
-    UserBuild[grubDefaultPkg]="${array[@]}"
+    result=${array[@]}
+    result+=" "$temp""
+    UserBuild[grubDefaultPkg]="$result"
 }
 
 buildGrubDefaultPkg() {
-    if [[ ${UserBuild[encryption]} != "-1" ]]; then
-        insertGrubDefaultPkg "cryptdevice=${UserBuild[lvmUUID]}:volgroup0"
+    if [[ ${UserBuild[encryption]} != "-1"  ]]; then
+        insertGrubDefaultPkg ""root=/dev/mapper/volgroup0-lv_root" "cryptdevice=UUID=${UserBuild[lvmUUID]}:volgroup0""  # "root=/dev/mapper/volgroup0-lv_root"
     fi
 }
 
@@ -259,12 +276,7 @@ updateGrub() {
         echo "Error: grub already updated"
         exit 1
     fi
-    if [[ "$1" == "" ]]; then 
-        echo "Error: input not valid for updateGrubFile"
-        exit 1
-    fi
-    temp=\"${UserBuild[grubDefaultPkg]]}[@]\"
-    sed -i -e "s/[[insert]]/$temp/g" bin/grubFile.bin
+    sed -i s~"\[\[insert\]\]~${UserBuild[grubDefaultPkg]}"~g bin/grubFile.bin
     UserBuild[grub_file]="$(cat bin/grubFile.bin)"
     UserBuild[grubLock]=1
 }
@@ -275,33 +287,20 @@ updateMkinitcpio() {
         echo "Error: mkinitcpio already updated"
         exit 1
     fi
-    if [[ $1 == "" ]]; then 
-        echo "Error: input not valid for updateMkinitcpio"
-        exit 1
-    fi
-    temp=\"${UserBuild[mkinitcpioHOOKS]}[@]\"
-    sed -i -e "s/[[insertHooks]]/$temp/g" bin/grubFile.bin
-    temp=\"${UserBuild[mkinitcpioFILES]}[@]\"
-    sed -i -e "s/[[insertFiles]]/$temp/g" bin/grubFile.bin
+    sed -i s~'\[\[insertHooks\]\]'~"${UserBuild[mkinitcpioHOOKS]}~g" bin/mkinitcpioFile.bin
+    sed -i s~'\[\[insertFiles\]\]'~"${UserBuild[mkinitcpioFILES]}~g" bin/mkinitcpioFile.bin
     UserBuild[mkinitcpio_file]="$(cat bin/mkinitcpioFile.bin)"
     UserBuild[mkinitcpioLock]=1
 }
 
 updateCrypttab() {
-    if [[ ${UserBuild[personalKey]} != "-1" ]]; then
-        return
-    fi
     if [[ ${UserBuild[crypttabLock]} != 0 ]]; then 
         echo "Error: updateCrypttab already updated"
         exit 1
     fi
-    if [[ $1 == "" ]]; then 
-        echo "Error: input not valid for updateCrypttab"
-        exit 1
-    fi
-    sed -i -e 's/[[insertName]]/lvm/g' bin/crypttab.bin
-    sed -i -e "s/[[insertUUID]]/${UserBuild[lvmUUID]}/g" bin/grubFile.bin
-    sed -i -e 's/[[insertName]]/"/secure/securekey.bin"/g' bin/grubFile.bin
+    sed -i 's~\[\[insertName\]\]'~"volgroup0~g" bin/crypttabFile.bin
+    sed -i 's~\[\[insertUUID\]\]'~UUID="${UserBuild[lvmUUID]}~g" bin/crypttabFile.bin
+    sed -i 's~\[\[insertFilePath\]\]~/secure/securekey.bin~g' bin/crypttabFile.bin
     UserBuild[crypttab_file]="$(cat bin/crypttabFile.bin)"
     UserBuild[crypttabLock]=1
 }
