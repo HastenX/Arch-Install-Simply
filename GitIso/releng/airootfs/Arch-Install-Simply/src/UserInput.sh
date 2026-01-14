@@ -16,11 +16,6 @@ function setUserInput() {
     updateModprobePkg
 
     # Testing data:
-    # for key in "${!UserBuild[@]}"
-    # do
-    #     echo "'$key' : '${UserBuild[$key]}'"
-    #     read -p "Wait: " w
-    # done
 }
 
 # function ensureMachine() {
@@ -73,7 +68,7 @@ function ensureDisk() {
     read -p "Please enter the hard drive you would like to format: " disk
     setDisk $disk
     if [[ $(lsblk | grep -i ${UserBuild[disk]}) == "" ]]; then
-        echo "Disk does not exist or doesn't have gpt format"
+        echo "Disk does not exist "
         ensureDisk
         return
     fi
@@ -188,8 +183,8 @@ function ensureEncryption() {
         insertModprobePkg "dm_crypt"
         setEncryption "y"
         insertMkinitcpioHOOKS "encrypt"
-        read -p "Would you like to use crypttab? (y/N): " verify
-        UserBuild[doCrypttab]=$verify
+        # read -p "Would you like to use crypttab? (y/N): " verify
+        # UserBuild[doCrypttab]=$verify
         keyTemplate
         setPersonalKey ${UserBuild[personalKey]}
     fi
@@ -231,6 +226,7 @@ function ensureDesktop() {
             ;;
         "h")
             setDesktop "hyprland"
+            addPacmanPkg "waybar" "hyprpaper"
             ;;
         "n")
             ;;

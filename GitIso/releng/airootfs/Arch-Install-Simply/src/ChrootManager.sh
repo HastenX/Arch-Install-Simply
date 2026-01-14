@@ -25,10 +25,10 @@ function pacmanInstall() {
 }
 
 function generateFiles() {
-    if [[ ${UserBuild[doCrypttab]} == "y" ]]; then
-        echo "${UserBuild[crypttab_file]}" > /mnt/etc/crypttab
-        secureKeyGen
-    fi
+    # if [[ ${UserBuild[doCrypttab]} == "y" ]]; then
+    #     echo "${UserBuild[crypttab_file]}" > /mnt/etc/crypttab
+    #     secureKeyGen
+    # fi
     echo "${UserBuild[mkinitcpio_file]}" > /mnt/etc/mkinitcpio.conf
     arch-chroot /mnt bash -c "mkinitcpio -p linux"
     echo "${UserBuild[locale_file]}" > /mnt/etc/locale.gen
