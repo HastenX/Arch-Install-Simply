@@ -16,6 +16,11 @@ function setUserInput() {
     updateModprobePkg
 
     # Testing data:
+    # for key in "${!UserBuild[@]}"
+    # do
+    #     echo "'$key' : '${UserBuild[$key]}'"
+    #     read -p "Wait: " w
+    # done
 }
 
 # function ensureMachine() {
@@ -213,6 +218,7 @@ function ensureUI() {
     ensureBrowser
     ensureConsole
     ensureFileManager
+    ensureCodeApps
 } 
 
 function ensureDesktop() {
@@ -323,6 +329,19 @@ function ensureFileManager() {
             ensureFileManager
             ;;
     esac
+}
+
+function ensureCodeApps() {
+    read -p "Please enter the letters of wanted applications (g=GithubDesktop,c=code,v=virtualbox): " desktop
+    if [[ $(echo $desktop | grep "g") != "" ]]; then
+        addYayPkg "github-desktop"
+    fi
+    if [[ $(echo $desktop | grep "c") != "" ]]; then
+        addPacmanPkg "code"
+    fi
+    if [[ $(echo $desktop | grep "v") != "" ]]; then
+        addPacmanPkg "virtualbox"
+    fi
 }
 
 function updateDiskVar() {

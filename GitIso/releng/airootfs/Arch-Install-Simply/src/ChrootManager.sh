@@ -41,15 +41,15 @@ function generateFiles() {
     arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 }
 
-function secureKeyGen() {
-    # UUID_HOME=$(blkid -o value -s UUID /dev/mapper/volgroup0-lv_home)
-    # UUID_ROOT=$(blkid -o value -s UUID /dev/mapper/volgroup0-lv_root)
-    mkdir /mnt/secure
-    touch /mnt/secure/securekey.bin
-    dd if=/dev/urandom of=/mnt/secure/securekey.bin bs=512 count=4
-    chmod 000 /mnt/secure/securekey.bin
-    arch-chroot /mnt bash -c "echo -n ex | cryptsetup luksAddKey /dev/${UserBuild[lvmPartition]} /secure/securekey.bin"
-}
+# function secureKeyGen() {
+#     # UUID_HOME=$(blkid -o value -s UUID /dev/mapper/volgroup0-lv_home)
+#     # UUID_ROOT=$(blkid -o value -s UUID /dev/mapper/volgroup0-lv_root)
+#     mkdir /mnt/secure
+#     touch /mnt/secure/securekey.bin
+#     dd if=/dev/urandom of=/mnt/secure/securekey.bin bs=512 count=4
+#     chmod 000 /mnt/secure/securekey.bin
+#     arch-chroot /mnt bash -c "echo -n ex | cryptsetup luksAddKey /dev/${UserBuild[lvmPartition]} /secure/securekey.bin"
+# }
 
 function systemctlSetup() {
     for pkg in ${UserBuild[systemctlPkg]}; do
