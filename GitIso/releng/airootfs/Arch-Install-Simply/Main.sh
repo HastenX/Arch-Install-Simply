@@ -13,7 +13,7 @@ function run() {
         exit 1
     fi
     
-    read -p "Enter test mode(y/N)? " test
+    # read -p "Enter test mode(y/N)? " test
     setUserInput
     install_sh
 
@@ -21,3 +21,5 @@ function run() {
     reboot
 }
 run
+
+#/home/Hazel/Documents/GitHub/Arch-Install-Simply/GitIsoBuild/archlinux-2026.01.02-x86_64.iso

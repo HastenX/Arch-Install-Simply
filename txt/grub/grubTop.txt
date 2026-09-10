@@ -1,5 +1,0 @@
-# GRUB boot loader configuration
-
-GRUB_DEFAULT=0
-GRUB_TIMEOUT=-1
-GRUB_DISTRIBUTOR="Arch"
